@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>给阿佳的一杯全糖</title>
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- 1. 全局设置 (马卡龙色系) --- */
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background-color: #ffe6fa; /* 粉嫩背景 */
+            font-family: 'Noto Sans SC', sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+        }
+        
+        #phone-screen {
+            width: 100%; max-width: 414px; height: 100%; max-height: 896px;
+            background: #fff; position: relative; overflow: hidden;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.2);
+            display: flex; flex-direction: column;
+            border-radius: 0; /* 适配全屏 */
+        }
+        @media (min-width: 500px) {
+            #phone-screen { height: 90vh; border-radius: 30px; border: 8px solid #333; }
+        }
+
+        /* --- 2. 锁屏界面 --- */
+        #lock-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            /* 渐变背景换成更活泼的颜色 */
+            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+            z-index: 100; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; color: white;
+            transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .notification {
+            background: rgba(255,255,255,0.95); color: #333;
+            padding: 20px 30px; border-radius: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            text-align: center; cursor: pointer; animation: bounce 2s infinite;
+            max-width: 80%;
+        }
+        .notification h3 { margin: 0; font-size: 1.1rem; color: #ff88a7; }
+        .notification p { margin: 8px 0 0; font-size: 0.95rem; color: #555; }
+        .icon-warn { font-size: 2rem; margin-bottom: 10px; display: block; }
+
+        /* --- 3. 聊天界面 --- */
+        #chat-header {
+            height: 60px; background: #fff; border-bottom: 1px solid #f0f0f0;
+            display: flex; align-items: center; padding: 0 20px; font-weight: bold;
+            color: #333; font-family: 'ZCOOL KuaiLe', cursive; font-size: 1.2rem;
+            justify-content: center; position: relative;
+        }
+        #chat-header::before { content: '<'; position: absolute; left: 20px; color: #ccc; }
+        
+        #chat-container {
+            flex: 1; overflow-y: auto; padding: 20px;
+            background: #f5f5f5; display: flex; flex-direction: column;
+            scroll-behavior: smooth;
+        }
+        
+        .message {
+            max-width: 80%; margin-bottom: 15px; padding: 12px 18px;
+            border-radius: 20px; position: relative; font-size: 1rem;
+            line-height: 1.5; animation: popIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .message.sent {
+            align-self: flex-end; background: #95ec69; color: #000;
+            border-bottom-right-radius: 4px;
+        }
+        .message.received {
+            align-self: flex-start; background: #fff; color: #000;
+            border-bottom-left-radius: 4px;
+        }
+        
+        /* 正在输入小点点 */
+        .typing-indicator {
+            padding: 10px 15px; background: #fff; border-radius: 20px;
+            border-bottom-left-radius: 4px; align-self: flex-start; margin-bottom: 15px;
+            display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .typing-dot {
+            height: 6px; width: 6px; border-radius: 50%; background: #bbb;
+            display: inline-block; margin: 0 2px; animation: typing 1.4s infinite ease-in-out both;
+        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        /* 语音气泡 */
+        .voice-bubble {
+            background: #ffbdd0; color: #fff; cursor: pointer; /* 改成粉色气泡 */
+            display: flex; align-items: center; justify-content: space-between;
+            min-width: 140px; font-weight: bold;
+        }
+        .voice-icon { width: 24px; height: 24px; fill: #fff; animation: wave 1s infinite linear paused;}
+        .voice-bubble.playing .voice-icon { animation-play-state: running; }
+
+        /* --- 4. 表白卡片 --- */
+        #confession-card {
+            position: absolute; bottom: -100%; left: 0; width: 100%;
+            background: white; border-top-left-radius: 35px; border-top-right-radius: 35px;
+            padding: 35px 25px; box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
+            transition: bottom 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+            z-index: 50; box-sizing: border-box;
+            max-height: 80%; overflow-y: auto;
+            text-align: center;
+        }
+        #confession-card h2 { color: #ff88a7; font-family: 'ZCOOL KuaiLe'; margin-top: 0; }
+        .card-content {
+            font-family: 'Noto Sans SC', sans-serif; color: #555;
+            line-height: 1.8; font-size: 1rem; white-space: pre-wrap;
+            text-align: left; margin-bottom: 20px;
+        }
+        
+        .btn-group { margin-top: 20px; display: flex; justify-content: center; gap: 20px; position: relative; height: 60px;}
+        .btn { border: none; padding: 12px 30px; border-radius: 50px; font-size: 1.1rem; font-family: 'ZCOOL KuaiLe'; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: transform 0.2s;}
+        .btn-yes { background: linear-gradient(to right, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); color: white; z-index: 5;}
+        .btn-yes:active { transform: scale(0.95); }
+        .btn-no { background: #eee; color: #888; position: absolute; right: 20px; z-index: 5;}
+
+        /* 歌词栏 */
+        #lyric-bar {
+            position: absolute; top: 65px; left: 0; width: 100%;
+            text-align: center; color: #ff88a7; font-size: 0.9rem; font-weight: bold;
+            pointer-events: none; transition: opacity 0.3s; opacity: 0;
+            text-shadow: 1px 1px 0 #fff;
+        }
+
+        /* --- 动画 --- */
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-10px);} 60% {transform: translateY(-5px);} }
+        @keyframes popIn { 0% { opacity: 0; transform: scale(0.8) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        @keyframes wave { 0% { transform: translateX(0); } 50% { transform: translateX(3px); } 100% { transform: translateX(0); } }
+        
+        /* 漂浮表情 */
+        .emoji-float { position: fixed; font-size: 2rem; animation: floatUp linear forwards; z-index: 999; pointer-events: none; }
+        @keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); opacity: 1;} 100% { transform: translateY(-100vh) rotate(20deg); opacity: 0;} }
+    </style>
+</head>
+<body>
+
+    <audio id="bgm" loop>
+        <source src="有点甜.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="phone-screen">
+        <div id="lock-screen" onclick="unlockPhone()">
+            <div class="notification">
+                <span class="icon-warn">🍬</span>
+                <h3>甜度超标提醒</h3>
+                <p>检测到 [阿佳的专属小跟班]<br>发来一份全糖去冰的消息</p>
+                <p style="font-size: 0.8rem; margin-top: 15px; color: #aaa;">👆 点击解锁查收</p>
+            </div>
+        </div>
+
+        <div id="chat-header">阿佳宝宝</div>
+        <div id="lyric-bar">♪ 正在缓冲甜甜的恋爱...</div>
+        <div id="chat-container">
+            <div style="text-align: center; color: #ccc; font-size: 0.8rem; margin-top: 10px; margin-bottom: 20px;">昨天 23:59</div>
+        </div>
+
+        <div id="confession-card">
+            <h2>✨ 恋爱申请书 ✨</h2>
+            <div class="card-content" id="card-text"></div>
+            <div class="btn-group">
+                <button class="btn btn-yes" onclick="agree()">好呀，准了！</button>
+                <button class="btn btn-no" onmouseover="runAway(this)" onclick="runAway(this)">哒咩</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================= 配置区 =================
+        const CONFIG = {
+            // 👇 聊天脚本：要有趣、反转、可爱
+            chatSequence: [
+                { type: 'typing_self', duration: 1000 },
+                
+                // 第一次尝试：太土了，撤回
+                { type: 'text_temp', text: "你有没有地图？我在你眼睛里迷路了...", duration: 1500 }, 
+                
+                { type: 'typing_self', duration: 800 },
+                { type: 'text_sent', text: "阿佳，我今天去买奶茶了。" },
+                
+                { type: 'typing_self', duration: 1200 },
+                { type: 'text_sent', text: "虽然点了三分糖..." },
+                
+                // 第二次尝试：想说想你，又不好意思
+                { type: 'text_temp', text: "但我还是好想你啊！", duration: 1200 },
+                
+                { type: 'text_sent', text: "但只要一想到你。" },
+                { type: 'text_sent', text: "我就觉得甜度直接爆表了！🍯" },
+                
+                { type: 'typing_self', duration: 1000 },
+                { type: 'text_sent', text: "听听这首歌，像不像我们？👇" },
+                
+                // 语音气泡：点击触发 BGM + 卡片
+                { type: 'voice_sent', text: "点击收听《有点甜》", duration: "03:52" }
+            ],
+
+            // 👇 表白卡片上的情书
+            finalLetter: `To 我最喜欢的阿佳：
+
+别人都说“有点甜”，
+但我觉得遇到你之后，
+我的生活简直是“全糖去冰”！
+
+你是九月的惊喜，
+是我耳机里循环播放的单曲，
+是我每天睁开眼就想联系的人。
+
+所以...
+能不能给我一个机会？
+让我承包你以后的奶茶、夜宵、
+还有所有的开心和不开心。
+
+申请人：瓜瓜~
+日期：爱你的每一天`,
+            
+            // 👇 歌词 (《有点甜》的LRC)
+            lrcContent: `[00:00.00] 有点甜 - 汪苏泷/花澤香菜 (はなざわ かな)
+[00:20.029]汪：
+[00:22.543]摘一颗苹果
+[00:24.334]等你从门前经过
+[00:27.008]送到你的手中帮你解渴
+[00:30.424]花澤香菜：
+[00:31.039]像夏天的可乐
+[00:33.455]像冬天的可可
+[00:36.288]你是对的时间对的角色
+[00:39.08]汪：
+[00:40.635]已经约定过
+[00:42.531]一起过下个周末
+[00:45.333]你的小小情绪对我来说
+[00:48.039]花澤香菜：
+[00:49.204]我也不知为何
+[00:51.711]伤口还没愈合
+[00:54.465]你就这样闯进我的心窝
+[00:58.93]是你让我看见干枯沙漠开出花一朵
+[01:03.11]汪：
+[01:03.32]是你让我想要每天为你写一首情歌
+[01:07.468]花澤香菜：
+[01:08.121]用最浪漫的副歌
+[01:09.863]汪：
+[01:10.055]你也轻轻的附和
+[01:12.114]花澤香菜：
+[01:12.943]眼神坚定着我们的选择
+[01:17.195]是你让我的世界从那刻变成粉红色
+[01:21.329]汪：
+[01:21.579]是你让我的生活从此都只要你配合
+[01:25.861]花澤香菜：
+[01:26.432]爱要精心来雕刻
+[01:28.076996]汪：
+[01:28.332]我是米开朗基罗
+[01:30.506]合：
+[01:31.012]用心刻画最幸福的风格
+[01:34.561005]花澤香菜：
+[01:36.033005]用时间 去思念 爱情有点甜
+[01:45.033005]这心愿 不会变 爱情有点甜
+[01:53.168]汪：
+[01:53.987]已经约定过
+[01:55.712006]一起过下个周末
+[01:58.441]你的小小情绪对我来说
+[02:01.06]花澤香菜：
+[02:02.102]我也不知为何
+[02:04.722]伤口还没愈合
+[02:07.659]你就这样闯进我的心窝
+[02:12.038]是你让我看见干枯沙漠开出花一朵
+[02:16.276]汪：
+[02:16.489]是你让我想要每天为你写一首情歌
+[02:20.746]花澤香菜：
+[02:21.4]用最浪漫的副歌
+[02:23.113]汪：
+[02:23.337]你也轻轻的附和
+[02:25.262]合：
+[02:25.837]眼神坚定着我们的选择
+[02:29.0]花澤香菜：
+[02:30.263]是你让我的世界从那刻变成粉红色
+[02:34.56601]汪：
+[02:34.83301]是你让我的生活从此都只要你配合
+[02:39.055]花澤香菜：
+[02:39.799]爱要精心来雕刻
+[02:41.47299]汪：
+[02:41.65]我是米开朗基罗
+[02:43.604]合：
+[02:44.123]用心刻画最幸福的风格
+[02:47.49701]花澤香菜：
+[02:48.804]是你让我看见干枯沙漠开出花一朵
+[02:52.93]汪：
+[02:53.111]是你让我想要每天为你写一首情歌
+[02:57.354]花澤香菜：
+[02:58.013]用最浪漫的副歌
+[02:59.643]汪：
+[02:59.85901]你也轻轻的附和
+[03:01.986]合：
+[03:02.537]眼神坚定着我们的选择
+[03:05.618]花澤香菜：
+[03:06.755]是你让我的世界从那刻变成粉红色
+[03:11.069]汪：
+[03:11.263]是你让我的生活从此都只要你配合
+[03:15.627]花澤香菜：
+[03:16.317]爱要精心来雕刻
+[03:17.949]汪：
+[03:18.177]我是米开朗基罗
+[03:20.434]合：
+[03:20.706]用心刻画最幸福的风格
+[03:25.369]用心刻画最幸福的风格
+`
+        };
+        // =========================================
+
+        const chatContainer = document.getElementById('chat-container');
+        const audio = document.getElementById('bgm');
+        const lyricBar = document.getElementById('lyric-bar');
+        let isLocked = true;
+
+        function unlockPhone() {
+            if (!isLocked) return;
+            isLocked = false;
+            document.getElementById('lock-screen').style.transform = 'translateY(-100%)';
+            audio.load(); 
+            setTimeout(startChatSimulation, 800);
+        }
+
+        async function startChatSimulation() {
+            for (let step of CONFIG.chatSequence) {
+                await handleChatStep(step);
+            }
+        }
+
+        function wait(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+        async function handleChatStep(step) {
+            switch (step.type) {
+                case 'typing_self':
+                    // 显示正在输入（左侧）
+                    const typingBubble = document.createElement('div');
+                    typingBubble.className = 'typing-indicator';
+                    typingBubble.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+                    typingBubble.style.display = 'inline-block';
+                    chatContainer.appendChild(typingBubble);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                    await wait(step.duration);
+                    typingBubble.remove();
+                    break;
+                case 'text_temp':
+                    // 发送 -> 撤回
+                    const tempMsg = addMessage('sent', step.text);
+                    await wait(step.duration);
+                    tempMsg.style.transition = 'opacity 0.5s';
+                    tempMsg.style.opacity = '0.5';
+                    setTimeout(() => {
+                        tempMsg.innerText = '"瓜瓜" 撤回了一条消息';
+                        tempMsg.style.fontSize = '0.8rem';
+                        tempMsg.style.background = 'transparent';
+                        tempMsg.style.color = '#aaa';
+                        tempMsg.style.padding = '5px 0';
+                        tempMsg.style.textAlign = 'center';
+                        tempMsg.style.maxWidth = '100%';
+                        tempMsg.style.boxShadow = 'none';
+                    }, 500);
+                    await wait(800);
+                    break;
+                case 'text_sent':
+                    addMessage('sent', step.text);
+                    await wait(1000); 
+                    break;
+                case 'voice_sent':
+                    addVoiceMessage(step.text, step.duration);
+                    break;
+            }
+        }
+
+        function addMessage(type, htmlContent) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}`;
+            msgDiv.innerHTML = htmlContent;
+            chatContainer.appendChild(msgDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            return msgDiv;
+        }
+
+        function addVoiceMessage(text, duration) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message sent voice-bubble`;
+            msgDiv.innerHTML = `
+                <svg class="voice-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                <span style="margin-left: 10px;">${text}</span>
+                <span style="font-size: 0.8rem; margin-left: 10px; opacity: 0.8;">${duration}</span>
+            `;
+            msgDiv.onclick = function() {
+                if (audio.paused) {
+                    audio.play();
+                    this.classList.add('playing');
+                    this.style.background = "#ff9a9e"; // 播放时变色
+                    showConfessionCard();
+                    lyricBar.style.opacity = 1;
+                } else {
+                    audio.pause();
+                    this.classList.remove('playing');
+                    this.style.background = "#ffbdd0";
+                }
+            };
+            chatContainer.appendChild(msgDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function showConfessionCard() {
+            const card = document.getElementById('confession-card');
+            const cardText = document.getElementById('card-text');
+            let i = 0;
+            cardText.innerHTML = "";
+            card.style.bottom = "0"; 
+            
+            function typeCard() {
+                if (i < CONFIG.finalLetter.length) {
+                    cardText.innerHTML += CONFIG.finalLetter.charAt(i) === '\n' ? '<br>' : CONFIG.finalLetter.charAt(i);
+                    i++;
+                    setTimeout(typeCard, 50);
+                }
+            }
+            setTimeout(typeCard, 600);
+        }
+
+        function runAway(btn) {
+            const x = (Math.random() * 200 - 100);
+            const y = (Math.random() * 200 - 100); 
+            btn.style.transform = `translate(${x}px, ${y}px)`;
+            btn.innerText = ["哎呀滑走了", "点不到", "略略略", "哒咩"][Math.floor(Math.random()*4)];
+        }
+
+        function agree() {
+            // 爆米花式爱心喷发
+            for(let i=0; i<30; i++) {
+                setTimeout(createFloatEmoji, i * 100);
+            }
+            document.querySelector('.btn-no').style.display = 'none';
+            document.querySelector('.btn-yes').innerText = "我就知道你最甜了！🍭";
+            document.querySelector('.btn-yes').style.transform = "scale(1.1)";
+        }
+
+        function createFloatEmoji() {
+            const emoji = document.createElement('div');
+            emoji.className = 'emoji-float';
+            emoji.innerHTML = ['🍭', '🍬', '🍩', '❤', '😍', '✨'][Math.floor(Math.random() * 6)];
+            emoji.style.left = Math.random() * 80 + 10 + 'vw';
+            emoji.style.fontSize = Math.random() * 1 + 1.5 + 'rem';
+            emoji.style.animationDuration = Math.random() * 2 + 3 + 's';
+            document.body.appendChild(emoji);
+            setTimeout(() => emoji.remove(), 5000);
+        }
+
+        // 歌词逻辑
+        const lyrics = parseLrc(CONFIG.lrcContent);
+        audio.addEventListener('timeupdate', () => {
+            const ct = audio.currentTime;
+            for (let i = lyrics.length - 1; i >= 0; i--) {
+                if (ct >= lyrics[i].time) {
+                    lyricBar.innerText = "♪ " + lyrics[i].text + " ♪";
+                    break;
+                }
+            }
+        });
+        function parseLrc(lrc) {
+            const lines = lrc.split('\n'); const result = [];
+            for (let line of lines) {
+                const match = line.match(/\[(\d+):(\d+)(\.\d+)?\](.*)/);
+                if (match) result.push({ time: parseInt(match[1])*60 + parseInt(match[2]) + (match[3]?parseFloat(match[3]):0), text: match[4].trim() });
+            }
+            return result;
+        }
+    </script>
+</body>
+</html>
