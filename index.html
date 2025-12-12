@@ -13,7 +13,7 @@
             font-family: 'Noto Sans SC', sans-serif;
             display: flex; justify-content: center; align-items: center;
             overflow: hidden; user-select: none;
-            transition: background 2s ease; /* 背景渐变过渡 */
+            transition: background 2s ease;
         }
         
         #phone-screen {
@@ -56,7 +56,7 @@
         #chat-container {
             flex: 1; overflow-y: auto; padding: 20px;
             background: #f5f5f5; display: flex; flex-direction: column;
-            scroll-behavior: smooth; z-index: 1;
+            scroll-behavior: smooth; z-index: 1; padding-bottom: 80px; /* 留出底部空间 */
         }
         
         .message {
@@ -80,26 +80,30 @@
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 
+        /* 语音气泡样式 */
         .voice-bubble {
             background: #ffbdd0; color: #fff; cursor: pointer;
             display: flex; align-items: center; justify-content: space-between;
             min-width: 140px; font-weight: bold;
+            transition: all 0.2s;
         }
         .voice-icon { width: 24px; height: 24px; fill: #fff; animation: wave 1s infinite linear paused;}
+        /* 播放时的样式 */
+        .voice-bubble.playing { background: #ff9a9e; transform: scale(1.05); box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4); }
         .voice-bubble.playing .voice-icon { animation-play-state: running; }
 
-        /* --- 4. 表白卡片 (Music Player Mode) --- */
+        /* --- 4. 表白卡片 (多功能容器) --- */
         #confession-card {
             position: absolute; bottom: -100%; left: 0; width: 100%;
             background: white; border-top-left-radius: 35px; border-top-right-radius: 35px;
             padding: 30px 25px; box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
             transition: bottom 0.8s cubic-bezier(0.165, 0.84, 0.44, 1), height 0.8s ease;
             z-index: 50; box-sizing: border-box;
-            max-height: 80%; overflow: hidden; /* 改为hidden，防止双滚动条 */
+            max-height: 80%; overflow: hidden; 
             display: flex; flex-direction: column; align-items: center;
         }
         
-        /* 初始文字模式 */
+        /* 文本模式 */
         #text-content-wrapper {
             width: 100%; overflow-y: auto; max-height: 100%;
             transition: opacity 0.5s;
@@ -111,14 +115,13 @@
             text-align: left; margin-bottom: 20px;
         }
 
-        /* 🎵 音乐播放器模式 (隐藏状态) */
+        /* 🎵 唱片机模式 (初始隐藏) */
         #music-player-ui {
             display: none; width: 100%; height: 100%;
             flex-direction: column; align-items: center; justify-content: center;
             opacity: 0; transition: opacity 1s;
         }
         
-        /* 旋转的唱片 */
         .vinyl-record {
             width: 200px; height: 200px;
             border-radius: 50%;
@@ -130,9 +133,9 @@
         }
         .vinyl-inner {
             width: 80px; height: 80px; border-radius: 50%;
-            background: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Felix') no-repeat center/cover; /* 这里可以用个头像API或者纯色 */
-            background-color: #ff9a9e;
-            border: 2px solid #fff;
+            /* 这里可以用个头像，现在用纯色+爱心代替 */
+            background: #ff9a9e;
+            border: 2px solid #fff; display: flex; justify-content: center; align-items: center; font-size: 2rem; color: white;
         }
         
         /* 大歌词 */
@@ -150,12 +153,12 @@
         .btn-yes:active { transform: scale(0.95); }
         .btn-no { background: #eee; color: #888; position: absolute; right: 20px; z-index: 5;}
 
-        /* 顶部小歌词栏 (前期使用) */
+        /* 顶部小歌词栏 */
         #lyric-bar {
             position: absolute; top: 65px; left: 0; width: 100%;
             text-align: center; color: #ff88a7; font-size: 0.9rem; font-weight: bold;
             pointer-events: none; transition: opacity 0.3s; opacity: 0;
-            text-shadow: 1px 1px 0 #fff;
+            text-shadow: 1px 1px 0 #fff; z-index: 3;
         }
 
         /* 动画关键帧 */
@@ -169,10 +172,7 @@
         .emoji-float { position: fixed; font-size: 1.5rem; animation: floatUp linear forwards; z-index: 999; pointer-events: none; }
         @keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); opacity: 0.8;} 100% { transform: translateY(-80vh) rotate(20deg); opacity: 0;} }
         
-        /* 派对模式样式 */
-        body.party-mode {
-            animation: pulse-bg 5s infinite;
-        }
+        body.party-mode { animation: pulse-bg 5s infinite; }
     </style>
 </head>
 <body>
@@ -209,7 +209,7 @@
 
             <div id="music-player-ui">
                 <div class="vinyl-record">
-                    <div class="vinyl-inner"></div>
+                    <div class="vinyl-inner">❤</div>
                 </div>
                 <div id="big-lyric">♪ 爱情有点甜 ♪</div>
                 <div style="margin-top: 20px; color: #aaa; font-size: 0.8rem;">正在播放: 阿佳的专属全糖BGM</div>
@@ -232,6 +232,7 @@
                 { type: 'text_sent', text: "我就觉得甜度直接爆表了！🍯" },
                 { type: 'typing_self', duration: 1000 },
                 { type: 'text_sent', text: "听听这首歌，像不像我们？👇" },
+                // ⚠️ 这个语音条是触发音乐的关键
                 { type: 'voice_sent', text: "点击收听《有点甜》", duration: "03:52" }
             ],
 
@@ -253,7 +254,6 @@
 申请人：瓜瓜~
 日期：爱你的每一天`,
             
-            // 歌词保持不变
             lrcContent: `
 [00:00.001]有点甜 (Live) - 汪苏泷/花澤香菜 (はなざわ かな)
 [00:04.279]词：汪苏泷
@@ -384,7 +384,7 @@
         const lyricBar = document.getElementById('lyric-bar');
         const bigLyric = document.getElementById('big-lyric');
         let isLocked = true;
-        let isPartyMode = false; // 新增状态
+        let isPartyMode = false;
         let typingInterval;
 
         function unlockPhone() {
@@ -448,12 +448,21 @@
             const msgDiv = document.createElement('div');
             msgDiv.className = `message sent voice-bubble`;
             msgDiv.innerHTML = `<svg class="voice-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg><span style="margin-left: 10px;">${text}</span><span style="font-size: 0.8rem; margin-left: 10px; opacity: 0.8;">${duration}</span>`;
+            
+            // 💡 这里的逻辑就是：点击语音条 -> 播放音乐 -> 显示表白卡
             msgDiv.onclick = function() {
                 if (audio.paused) {
-                    audio.play(); this.classList.add('playing'); this.style.background = "#ff9a9e"; 
-                    showConfessionCard(); lyricBar.style.opacity = 1;
+                    audio.play(); 
+                    this.classList.add('playing'); 
+                    this.style.background = "#ff9a9e"; 
+                    showConfessionCard(); 
+                    // 音乐一响，顶部歌词马上显示！
+                    lyricBar.style.opacity = 1;
                 } else {
-                    audio.pause(); this.classList.remove('playing'); this.style.background = "#ffbdd0";
+                    // 如果再点一次可以暂停
+                    audio.pause(); 
+                    this.classList.remove('playing'); 
+                    this.style.background = "#ffbdd0";
                 }
             };
             chatContainer.appendChild(msgDiv); chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -481,9 +490,9 @@
 
         function agree() {
             playWinSound();
-            isPartyMode = true; // 开启派对模式标记
+            isPartyMode = true;
 
-            // 1. 界面切换：隐藏文本，显示音乐播放器
+            // 界面切换：隐藏文字，显示唱片
             const textWrapper = document.getElementById('text-content-wrapper');
             const musicPlayer = document.getElementById('music-player-ui');
             const card = document.getElementById('confession-card');
@@ -492,18 +501,13 @@
             setTimeout(() => {
                 textWrapper.style.display = 'none';
                 musicPlayer.style.display = 'flex';
-                // 强制重绘
                 void musicPlayer.offsetWidth; 
                 musicPlayer.style.opacity = 1;
-                // 卡片高度自适应充满
                 card.style.height = "60%";
                 card.style.bottom = "10%";
             }, 500);
 
-            // 2. 开启背景律动
             document.body.classList.add('party-mode');
-
-            // 3. 持续的泡泡雨
             setInterval(createFloatEmoji, 800); 
         }
 
@@ -523,8 +527,8 @@
             for (let i = lyrics.length - 1; i >= 0; i--) {
                 if (ct >= lyrics[i].time) {
                     const text = lyrics[i].text;
-                    // 如果进入了派对模式，更新大歌词，并且给一个跳动特效
                     if (isPartyMode) {
+                        // 派对模式：大歌词跳动
                         if (bigLyric.innerText !== text) {
                             bigLyric.style.transform = "scale(1.1)";
                             bigLyric.style.color = "#ff5e78";
@@ -535,6 +539,7 @@
                             }, 150);
                         }
                     } else {
+                        // 正常模式：顶部小歌词
                         lyricBar.innerText = "♪ " + text + " ♪";
                     }
                     break;
