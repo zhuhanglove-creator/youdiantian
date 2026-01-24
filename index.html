@@ -3,556 +3,456 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>给阿佳的一杯全糖</title>
-    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <title>西瓜 💖 阿佳</title>
     <style>
-        /* --- 1. 全局设置 --- */
+        /* --- 1. 全局配置 & 公主风背景 --- */
+        :root {
+            --primary: #ff9a9e; /* 更嫩的粉色 */
+            --secondary: #fad0c4; /* 蜜桃粉 */
+            --accent: #ff6b81; /* 强调色 */
+            --text-main: #664455; /* 深粉棕色文字，比纯黑更柔和 */
+            --chat-bg-me: #a8edea; /* 清新的蒂芙尼蓝绿 */
+            --chat-bg-her: #fff0f5; /* 浅粉色白 */
+        }
+
         body, html {
-            margin: 0; padding: 0; width: 100%; height: 100%;
-            background-color: #ffe6fa;
-            font-family: 'Noto Sans SC', sans-serif;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Comic Sans MS", sans-serif; /* 加了一点可爱的字体后备 */
+            /* 升级为超级柔和的马卡龙粉色渐变背景 */
+            background: linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%);
+            background-size: 400% 400%;
+            /* 移除背景流动动画，保持纯净的粉嫩感，或者用一个非常缓慢的流动 */
+            /* animation: gradientBG 20s ease infinite; */ 
+            overflow-x: hidden;
+            color: var(--text-main);
+        }
+
+        /* 漂浮粒子升级为：粉色泡泡 */
+        .circles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            overflow: hidden; z-index: -1;
+        }
+        .circles li {
+            position: absolute;
+            display: block;
+            list-style: none;
+            width: 20px; height: 20px;
+            background: rgba(255, 255, 255, 0.6); /* 更通透 */
+            box-shadow: 0 0 10px rgba(255, 192, 203, 0.5); /* 粉色光晕 */
+            animation: animate 25s linear infinite;
+            bottom: -150px;
+            border-radius: 50%; /* 变成圆形泡泡 */
+        }
+        .circles li:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0s; background: rgba(255, 182, 193, 0.4); }
+        .circles li:nth-child(2) { left: 10%; width: 30px; height: 30px; animation-delay: 2s; animation-duration: 12s; background: rgba(255, 240, 245, 0.5); }
+        .circles li:nth-child(3) { left: 70%; width: 40px; height: 40px; animation-delay: 4s; }
+        .circles li:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; background: rgba(255, 192, 203, 0.3); }
+        .circles li:nth-child(5) { left: 65%; width: 25px; height: 25px; animation-delay: 0s; }
+        .circles li:nth-child(6) { left: 75%; width: 90px; height: 90px; animation-delay: 3s; background: rgba(255, 228, 225, 0.5);}
+        
+        @keyframes animate {
+            0% { transform: translateY(0) scale(0.8); opacity: 0.8; }
+            100% { transform: translateY(-1000px) scale(1.2); opacity: 0; }
+        }
+
+        /* --- 2. 开屏引导 & 音乐图标 --- */
+        #start-mask {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100vh;
+            /* 背景也改成半透明粉色 */
+            background: rgba(255, 192, 203, 0.9);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: #fff;
+            transition: opacity 0.8s;
+            backdrop-filter: blur(10px);
+        }
+        .heartbeat-btn {
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+            padding: 15px 45px;
+            border-radius: 50px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            border: 3px solid rgba(255,255,255,0.5);
+            animation: pulse 1.5s infinite;
+            cursor: pointer;
+            box-shadow: 0 5px 25px rgba(255, 107, 129, 0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .music-control {
+            position: fixed;
+            top: 20px; right: 20px;
+            width: 40px; height: 40px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%; color: var(--accent);
+            z-index: 100;
             display: flex; justify-content: center; align-items: center;
-            overflow: hidden; user-select: none;
-            transition: background 2s ease;
-        }
-        
-        #phone-screen {
-            width: 100%; max-width: 414px; height: 100%; max-height: 896px;
-            background: #fff; position: relative; overflow: hidden;
-            box-shadow: 0 0 30px rgba(255, 105, 180, 0.2);
-            display: flex; flex-direction: column;
-            border-radius: 0;
-        }
-        @media (min-width: 500px) {
-            #phone-screen { height: 90vh; border-radius: 30px; border: 8px solid #333; }
-        }
-
-        /* --- 2. 锁屏界面 --- */
-        #lock-screen {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
-            z-index: 100; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; color: white;
-            transition: transform 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-        .notification {
-            background: rgba(255,255,255,0.95); color: #333;
-            padding: 20px 30px; border-radius: 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            text-align: center; cursor: pointer; animation: bounce 2s infinite;
-            max-width: 80%;
-        }
-        .icon-warn { font-size: 2rem; margin-bottom: 10px; display: block; }
-
-        /* --- 3. 聊天界面 --- */
-        #chat-header {
-            height: 60px; background: #fff; border-bottom: 1px solid #f0f0f0;
-            display: flex; align-items: center; padding: 0 20px; font-weight: bold;
-            color: #333; font-family: 'ZCOOL KuaiLe', cursive; font-size: 1.2rem;
-            justify-content: center; position: relative; z-index: 2;
-        }
-        #chat-header::before { content: '<'; position: absolute; left: 20px; color: #ccc; }
-        
-        #chat-container {
-            flex: 1; overflow-y: auto; padding: 20px;
-            background: #f5f5f5; display: flex; flex-direction: column;
-            scroll-behavior: smooth; z-index: 1; padding-bottom: 80px; /* 留出底部空间 */
-        }
-        
-        .message {
-            max-width: 80%; margin-bottom: 15px; padding: 12px 18px;
-            border-radius: 20px; position: relative; font-size: 1rem;
-            line-height: 1.5; animation: popIn 0.3s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); transform-origin: left bottom;
-        }
-        .message.sent { align-self: flex-end; background: #95ec69; color: #000; border-bottom-right-radius: 4px; transform-origin: right bottom; }
-        .message.received { align-self: flex-start; background: #fff; color: #000; border-bottom-left-radius: 4px; }
-        
-        .typing-indicator {
-            padding: 10px 15px; background: #fff; border-radius: 20px;
-            border-bottom-left-radius: 4px; align-self: flex-start; margin-bottom: 15px;
-            display: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .typing-dot {
-            height: 6px; width: 6px; border-radius: 50%; background: #bbb;
-            display: inline-block; margin: 0 2px; animation: typing 1.4s infinite ease-in-out both;
-        }
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-
-        /* 语音气泡样式 */
-        .voice-bubble {
-            background: #ffbdd0; color: #fff; cursor: pointer;
-            display: flex; align-items: center; justify-content: space-between;
-            min-width: 140px; font-weight: bold;
-            transition: all 0.2s;
-        }
-        .voice-icon { width: 24px; height: 24px; fill: #fff; animation: wave 1s infinite linear paused;}
-        /* 播放时的样式 */
-        .voice-bubble.playing { background: #ff9a9e; transform: scale(1.05); box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4); }
-        .voice-bubble.playing .voice-icon { animation-play-state: running; }
-
-        /* --- 4. 表白卡片 (多功能容器) --- */
-        #confession-card {
-            position: absolute; bottom: -100%; left: 0; width: 100%;
-            background: white; border-top-left-radius: 35px; border-top-right-radius: 35px;
-            padding: 30px 25px; box-shadow: 0 -10px 30px rgba(0,0,0,0.1);
-            transition: bottom 0.8s cubic-bezier(0.165, 0.84, 0.44, 1), height 0.8s ease;
-            z-index: 50; box-sizing: border-box;
-            max-height: 80%; overflow: hidden; 
-            display: flex; flex-direction: column; align-items: center;
-        }
-        
-        /* 文本模式 */
-        #text-content-wrapper {
-            width: 100%; overflow-y: auto; max-height: 100%;
-            transition: opacity 0.5s;
-        }
-        #confession-card h2 { color: #ff88a7; font-family: 'ZCOOL KuaiLe'; margin-top: 0; text-align: center;}
-        .card-content {
-            font-family: 'Noto Sans SC', sans-serif; color: #555;
-            line-height: 1.8; font-size: 1rem; white-space: pre-wrap;
-            text-align: left; margin-bottom: 20px;
-        }
-
-        /* 🎵 唱片机模式 (初始隐藏) */
-        #music-player-ui {
-            display: none; width: 100%; height: 100%;
-            flex-direction: column; align-items: center; justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(255, 107, 129, 0.2);
             opacity: 0; transition: opacity 1s;
         }
-        
-        .vinyl-record {
-            width: 200px; height: 200px;
-            border-radius: 50%;
-            background: radial-gradient(circle, #fff 10%, #333 11%, #111 40%, #333 41%, #111 60%, #333 61%, #111 100%);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: flex; justify-content: center; align-items: center;
-            animation: spin 8s linear infinite;
-            margin-bottom: 30px; border: 5px solid #fff;
-        }
-        .vinyl-inner {
-            width: 80px; height: 80px; border-radius: 50%;
-            /* 这里可以用个头像，现在用纯色+爱心代替 */
-            background: #ff9a9e;
-            border: 2px solid #fff; display: flex; justify-content: center; align-items: center; font-size: 2rem; color: white;
-        }
-        
-        /* 大歌词 */
-        #big-lyric {
-            font-size: 1.2rem; color: #ff88a7; font-family: 'ZCOOL KuaiLe';
-            text-align: center; min-height: 60px; line-height: 1.5;
-            font-weight: bold; padding: 0 20px;
-            text-shadow: 1px 1px 0 #fff;
-            transform: scale(1); transition: transform 0.2s;
-        }
-        
-        .btn-group { margin-top: 20px; display: flex; justify-content: center; gap: 20px; position: relative; height: 60px; width: 100%;}
-        .btn { border: none; padding: 12px 30px; border-radius: 50px; font-size: 1.1rem; font-family: 'ZCOOL KuaiLe'; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: transform 0.2s;}
-        .btn-yes { background: linear-gradient(to right, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); color: white; z-index: 5;}
-        .btn-yes:active { transform: scale(0.95); }
-        .btn-no { background: #eee; color: #888; position: absolute; right: 20px; z-index: 5;}
+        .music-control.playing { animation: spin 3s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* 顶部小歌词栏 */
-        #lyric-bar {
-            position: absolute; top: 65px; left: 0; width: 100%;
-            text-align: center; color: #ff88a7; font-size: 0.9rem; font-weight: bold;
-            pointer-events: none; transition: opacity 0.3s; opacity: 0;
-            text-shadow: 1px 1px 0 #fff; z-index: 3;
+        /* --- 3. 内容布局 --- */
+        .container {
+            max-width: 600px; margin: 0 auto; padding-bottom: 50px;
+            opacity: 0; transition: opacity 1s;
+        }
+        section {
+            min-height: 90vh;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            padding: 20px; text-align: center; position: relative;
         }
 
-        /* 动画关键帧 */
-        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-10px);} 60% {transform: translateY(-5px);} }
-        @keyframes popIn { 0% { opacity: 0; transform: scale(0.8) translateY(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-        @keyframes wave { 0% { transform: translateX(0); } 50% { transform: translateX(3px); } 100% { transform: translateX(0); } }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes pulse-bg { 0% { background-color: #ffe6fa; } 50% { background-color: #e6f9ff; } 100% { background-color: #ffe6fa; } }
+        /* --- 4. 聊天气泡 (更圆润可爱) --- */
+        .chat-container {
+            width: 100%; padding: 10px;
+            box-sizing: border-box; display: flex;
+            flex-direction: column; gap: 18px;
+        }
+        .chat-msg {
+            max-width: 80%; padding: 14px 18px;
+            border-radius: 20px; /* 更圆的边角 */
+            position: relative; font-size: 15px;
+            line-height: 1.5;
+            box-shadow: 0 4px 15px rgba(255, 107, 129, 0.1);
+            text-align: left;
+            /* 初始状态用于动画 */
+            opacity: 0; 
+        }
+        .chat-msg.me {
+            align-self: flex-end; background-color: var(--chat-bg-me);
+            color: #333; border-bottom-right-radius: 5px;
+        }
+        .chat-msg.her {
+            align-self: flex-start; background-color: var(--chat-bg-her);
+            color: #333; border: 2px solid #fff0f5;
+            border-bottom-left-radius: 5px;
+        }
+        .chat-date {
+            font-size: 12px; color: var(--accent); opacity: 0.7;
+            margin-bottom: 5px; text-align: center; width: 100%; margin-top: 10px;
+        }
+
+        /* --- 5. 计时器样式 (粉嫩版) --- */
+        .timer-box {
+            background: rgba(255,255,255,0.95);
+            padding: 35px; border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(255, 107, 129, 0.15);
+            width: 85%; border: 3px solid #fff;
+        }
+        .timer-title {
+            font-size: 15px; color: var(--primary);
+            margin-bottom: 15px; letter-spacing: 2px; font-weight: bold;
+        }
+        .timer-number {
+            font-size: 36px; font-weight: 900;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            color: transparent; /* 渐变色数字 */
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* --- 6. Q弹动画特效 (核心升级) --- */
         
-        .emoji-float { position: fixed; font-size: 1.5rem; animation: floatUp linear forwards; z-index: 999; pointer-events: none; }
-        @keyframes floatUp { 0% { transform: translateY(0) rotate(0deg); opacity: 0.8;} 100% { transform: translateY(-80vh) rotate(20deg); opacity: 0;} }
-        
-        body.party-mode { animation: pulse-bg 5s infinite; }
+        /* 定义一个Q弹的贝塞尔曲线 */
+        :root {
+             --bounce-easing: cubic-bezier(0.68, -0.6, 0.32, 1.6);
+        }
+
+        /* 向上Q弹出现 */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+            transition: all 0.8s var(--bounce-easing);
+        }
+        /* 向左Q弹出现 */
+        .fade-in-left {
+            opacity: 0;
+            transform: translateX(-50px) scale(0.9);
+            transition: all 0.8s var(--bounce-easing);
+        }
+         /* 向右Q弹出现 */
+        .fade-in-right {
+            opacity: 0;
+            transform: translateX(50px) scale(0.9);
+            transition: all 0.8s var(--bounce-easing);
+        }
+
+        /* 激活状态 */
+        .visible {
+            opacity: 1;
+            transform: translate(0) scale(1);
+        }
+
+
+        .emoji-avatar {
+            font-size: 70px; margin-bottom: 25px;
+            filter: drop-shadow(0 5px 10px rgba(255, 107, 129, 0.3));
+            animation: floatEmoji 3s ease-in-out infinite;
+        }
+        @keyframes floatEmoji {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* 卡片样式 (更软萌) */
+        .card-text {
+            background: rgba(255,255,255,0.8);
+            padding: 25px; border-radius: 25px;
+            margin: 12px 0; font-size: 16px;
+            line-height: 1.7; color: var(--text-main);
+            width: 82%;
+            box-shadow: 0 8px 20px rgba(255, 107, 129, 0.1);
+            border: 2px solid #fff;
+        }
+
     </style>
 </head>
 <body>
 
+    <ul class="circles"><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ul>
+
     <audio id="bgm" loop>
-        <source src="汪苏泷&花澤香菜 - 有点甜(Live).mp3" type="audio/mpeg">
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sfx-start">
+        <source src="start.mp3" type="audio/mpeg">
     </audio>
 
-    <div id="phone-screen">
-        <div id="lock-screen" onclick="unlockPhone()">
-            <div class="notification">
-                <span class="icon-warn">🍬</span>
-                <h3>甜度超标提醒</h3>
-                <p>检测到 [阿佳的专属小跟班]<br>发来一份全糖去冰的消息</p>
-                <p style="font-size: 0.8rem; margin-top: 15px; color: #aaa;">👆 点击解锁查收</p>
+    <div class="music-control" id="music-icon">🎵</div>
+
+    <div id="start-mask">
+        <div style="font-size: 60px; margin-bottom: 20px;">💖</div>
+        <div style="margin-bottom: 30px; font-size: 18px; font-weight: bold;">To: 公主殿下 阿佳</div>
+        <div class="heartbeat-btn" id="start-btn">开启专属惊喜 ✨</div>
+    </div>
+
+    <div class="container" id="main-container">
+
+        <section>
+            <div class="fade-in-up">
+                <span style="font-size: 70px; display:inline-block; transform: rotate(-10deg);">🍉</span>
+                <span style="font-size: 40px; margin: 0 15px; color: var(--accent);">💞</span>
+                <span style="font-size: 70px; display:inline-block; transform: rotate(10deg);">👧</span>
             </div>
-        </div>
+            <h1 class="fade-in-up" style="margin-top: 25px; color: #fff; font-size: 32px; text-shadow: 0 2px 10px rgba(255, 107, 129, 0.5);">西瓜 & 阿佳</h1>
+            <p class="fade-in-up" style="color: var(--text-main); font-weight:500; margin-top: 15px; background: rgba(255,255,255,0.6); padding: 5px 15px; border-radius: 20px;">我们的故事，从两个时间点开始。</p>
+            <div class="fade-in-up" style="position: absolute; bottom: 50px; color: var(--accent); font-size: 14px; animation: bounce 2s infinite;">
+                下滑进入回忆 ↓
+            </div>
+        </section>
 
-        <div id="chat-header">阿佳宝宝</div>
-        <div id="lyric-bar">♪ 正在缓冲甜甜的恋爱...</div>
-        <div id="chat-container">
-            <div style="text-align: center; color: #ccc; font-size: 0.8rem; margin-top: 10px; margin-bottom: 20px;">昨天 23:59</div>
-        </div>
-
-        <div id="confession-card">
-            <div id="text-content-wrapper">
-                <h2>✨ 恋爱申请书 ✨</h2>
-                <div class="card-content" id="card-text"></div>
-                <div class="btn-group">
-                    <button class="btn btn-yes" onclick="agree()">好呀，准了！</button>
-                    <button class="btn btn-no" onmouseover="runAway(this)" onclick="runAway(this)">哒咩</button>
+        <section>
+            <div class="chat-container">
+                <div class="chat-date fade-in-up">🌸 6月1日 🌸</div>
+                <div class="chat-msg me fade-in-right">
+                    猪包
                 </div>
             </div>
+            <p class="fade-in-up" style="margin-top: 30px; font-size: 15px; font-weight: 500;">
+                那天，这简单的两个字<br>是我试探着发出的第一条信号。
+            </p>
+        </section>
 
-            <div id="music-player-ui">
-                <div class="vinyl-record">
-                    <div class="vinyl-inner">❤</div>
+        <section>
+            <div class="emoji-avatar fade-in-up">✨🌙✨</div>
+            <h2 class="fade-in-up" style="color: var(--accent); font-size: 22px; margin-bottom: 25px;">命运转动的时刻</h2>
+            
+            <div class="chat-container">
+                <div class="chat-date fade-in-up">🎀 2025年9月5日 02:51 🎀</div>
+                
+                <div class="chat-msg her fade-in-left">
+                    笑死我了 自己一边玩一边解说 可以嘟
                 </div>
-                <div id="big-lyric">♪ 爱情有点甜 ♪</div>
-                <div style="margin-top: 20px; color: #aaa; font-size: 0.8rem;">正在播放: 阿佳的专属全糖BGM</div>
+                <div class="chat-msg her fade-in-left" style="transition-delay: 0.3s;">
+                    我之前也想玩露娜 别人教我半天
+                </div>
             </div>
-        </div>
+            
+            <p class="fade-in-up" style="margin-top: 40px; font-size: 15px; font-weight: 500;">
+                就在那个深夜，屏幕亮起。<br>我的世界也被点亮了。
+            </p>
+        </section>
+
+        <section>
+            <div class="fade-in-up" style="font-size: 60px; margin-bottom: 20px;">🎮🎧</div>
+            <h2 class="fade-in-up" style="color: var(--text-main); font-size: 20px; margin-bottom: 25px;">从游戏到生活</h2>
+            
+            <div class="card-text fade-in-right">
+                可能我不是全场最佳的野王，<br>
+                但我想做你专属的辅助。保护你！🛡️
+            </div>
+            
+            <div class="card-text fade-in-right" style="transition-delay: 0.3s;">
+                听筒里传来的声音，<br>
+                比游戏胜利的音效好听一万倍。
+            </div>
+        </section>
+
+        <section>
+            <div class="fade-in-up" style="font-size: 60px; margin-bottom: 20px;">☁️🍰</div>
+            <h2 class="fade-in-up" style="color: var(--text-main); font-size: 20px; margin-bottom: 25px;">关于“分享欲”</h2>
+            
+            <div class="card-text fade-in-left">
+                以前看到好看的云，会拍下来存手机。<br>
+                现在看到好看的云，会拍下来发给你。
+            </div>
+
+            <div class="card-text fade-in-left" style="transition-delay: 0.3s;">
+                所有的碎碎念和分享，<br>
+                其实都是“我想你”的潜台词。🤫
+            </div>
+        </section>
+
+        <section>
+            <div class="fade-in-up" style="font-size: 60px; margin-bottom: 20px;">🗺️💕</div>
+            
+            <div class="card-text fade-in-up">
+                我不擅长记日子，<br>
+                但我擅长在心里给你留位置，最重要的位置。
+            </div>
+            
+            <div class="card-text fade-in-up" style="transition-delay: 0.3s;">
+                没见面的日子里，<br>
+                我们都在努力成为更好的自己。<br>
+                只为了初见那一刻，是最好的我们。
+            </div>
+        </section>
+
+        <section>
+            <div class="timer-box fade-in-up">
+                <div class="timer-title">✨ 我们已经相识了 ✨</div>
+                <div class="timer-number" id="days">0</div>
+                <div style="font-size: 14px; color: var(--primary); margin-bottom: 20px;">Days</div>
+                
+                <div style="display: flex; justify-content: space-around; border-top: 2px dashed rgba(255, 107, 129, 0.2); padding-top: 20px;">
+                    <div>
+                        <div class="timer-number" style="font-size: 24px;" id="hours">00</div>
+                        <div style="font-size: 12px; color: var(--primary);">Hours</div>
+                    </div>
+                    <div>
+                        <div class="timer-number" style="font-size: 24px;" id="minutes">00</div>
+                        <div style="font-size: 12px; color: var(--primary);">Mins</div>
+                    </div>
+                    <div>
+                        <div class="timer-number" style="font-size: 24px;" id="seconds">00</div>
+                        <div style="font-size: 12px; color: var(--primary);">Secs</div>
+                    </div>
+                </div>
+            </div>
+            <p class="fade-in-up" style="margin-top: 35px; font-size: 15px; color: var(--accent);">
+                从 2025.09.05 02:51 开始，<br>每一秒都值得被记录。⏳
+            </p>
+        </section>
+
+        <section>
+            <div class="fade-in-up" style="background: rgba(255,255,255,0.9); padding: 45px 35px; border-radius: 30px; margin: 20px; box-shadow: 0 20px 50px rgba(255, 107, 129, 0.2); border: 3px solid #fff;">
+                <p style="font-size: 18px; font-weight: bold; margin-bottom: 25px; color: var(--accent);">To 公主阿佳：👸</p>
+                <p style="line-height: 2;">虽然我们还没见过面，</p>
+                <p style="line-height: 2;">但请相信，</p>
+                <p style="line-height: 2;">所有的等待，都是为了相见时的那个拥抱。</p>
+                <div style="margin-top: 45px; font-weight: 900; color: var(--accent); font-size: 20px; letter-spacing: 1px;">
+                    ✨ 期待那一天的到来 ✨
+                </div>
+            </div>
+            <footer style="margin-top: 60px; font-size: 14px; color: var(--primary); opacity: 0.8;">
+                Made with 💖 by 西瓜 🍉
+            </footer>
+        </section>
+
     </div>
 
     <script>
-        // ================= 配置区 =================
-        const CONFIG = {
-            chatSequence: [
-                { type: 'typing_self', duration: 1000 },
-                { type: 'text_temp', text: "你有没有地图？我在你眼睛里迷路了...", duration: 1500 }, 
-                { type: 'typing_self', duration: 800 },
-                { type: 'text_sent', text: "阿佳，我今天去买奶茶了。" },
-                { type: 'typing_self', duration: 1200 },
-                { type: 'text_sent', text: "虽然点了三分糖..." },
-                { type: 'text_temp', text: "但我还是好想你啊！", duration: 1200 },
-                { type: 'text_sent', text: "但只要一想到你。" },
-                { type: 'text_sent', text: "我就觉得甜度直接爆表了！🍯" },
-                { type: 'typing_self', duration: 1000 },
-                { type: 'text_sent', text: "听听这首歌，像不像我们？👇" },
-                // ⚠️ 这个语音条是触发音乐的关键
-                { type: 'voice_sent', text: "点击收听《有点甜》", duration: "03:52" }
-            ],
+        // --- 1. 音乐、音效与开场逻辑 ---
+        const startBtn = document.getElementById('start-btn');
+        const startMask = document.getElementById('start-mask');
+        const mainContainer = document.getElementById('main-container');
+        const bgm = document.getElementById('bgm');
+        const sfxStart = document.getElementById('sfx-start'); // 获取音效元素
+        const musicIcon = document.getElementById('music-icon');
 
-            finalLetter: `To 我最喜欢的阿佳：
+        startBtn.addEventListener('click', () => {
+            // 播放背景音乐
+            bgm.play().catch(()=>{}); // catch错误防止浏览器阻止报错
+            // 播放点击音效 (如果文件存在)
+            if(sfxStart) sfxStart.play().catch(()=>{});
 
-别人都说“有点甜”，
-但我觉得遇到你之后，
-我的生活简直是“全糖去冰”！
-
-你是九月的惊喜，
-是我耳机里循环播放的单曲，
-是我每天睁开眼就想联系的人。
-
-所以...
-能不能给我一个机会？
-让我承包你以后的奶茶、夜宵、
-还有所有的开心和不开心。
-
-申请人：瓜瓜~
-日期：爱你的每一天`,
+            musicIcon.style.opacity = '1';
+            musicIcon.classList.add('playing');
             
-            lrcContent: `
-[00:00.001]有点甜 (Live) - 汪苏泷/花澤香菜 (はなざわ かな)
-[00:04.279]词：汪苏泷
-[00:04.887]曲：汪苏泷
-[00:05.47]编曲：金若晨
-[00:06.198]原唱：汪苏泷/BY2
-[00:20.029]汪：
-[00:22.543]摘一颗苹果
-[00:24.334]等你从门前经过
-[00:27.008]送到你的手中帮你解渴
-[00:30.424]花澤香菜：
-[00:31.039]像夏天的可乐
-[00:33.455]像冬天的可可
-[00:36.288]你是对的时间对的角色
-[00:39.08]汪：
-[00:40.635]已经约定过
-[00:42.531]一起过下个周末
-[00:45.333]你的小小情绪对我来说
-[00:48.039]花澤香菜：
-[00:49.204]我也不知为何
-[00:51.711]伤口还没愈合
-[00:54.465]你就这样闯进我的心窝
-[00:58.93]是你让我看见干枯沙漠开出花一朵
-[01:03.11]汪：
-[01:03.32]是你让我想要每天为你写一首情歌
-[01:07.468]花澤香菜：
-[01:08.121]用最浪漫的副歌
-[01:09.863]汪：
-[01:10.055]你也轻轻的附和
-[01:12.114]花澤香菜：
-[01:12.943]眼神坚定着我们的选择
-[01:17.195]是你让我的世界从那刻变成粉红色
-[01:21.329]汪：
-[01:21.579]是你让我的生活从此都只要你配合
-[01:25.861]花澤香菜：
-[01:26.432]爱要精心来雕刻
-[01:28.076996]汪：
-[01:28.332]我是米开朗基罗
-[01:30.506]合：
-[01:31.012]用心刻画最幸福的风格
-[01:34.561005]花澤香菜：
-[01:36.033005]用时间 去思念 爱情有点甜
-[01:45.033005]这心愿 不会变 爱情有点甜
-[01:53.168]汪：
-[01:53.987]已经约定过
-[01:55.712006]一起过下个周末
-[01:58.441]你的小小情绪对我来说
-[02:01.06]花澤香菜：
-[02:02.102]我也不知为何
-[02:04.722]伤口还没愈合
-[02:07.659]你就这样闯进我的心窝
-[02:12.038]是你让我看见干枯沙漠开出花一朵
-[02:16.276]汪：
-[02:16.489]是你让我想要每天为你写一首情歌
-[02:20.746]花澤香菜：
-[02:21.4]用最浪漫的副歌
-[02:23.113]汪：
-[02:23.337]你也轻轻的附和
-[02:25.262]合：
-[02:25.837]眼神坚定着我们的选择
-[02:29.0]花澤香菜：
-[02:30.263]是你让我的世界从那刻变成粉红色
-[02:34.56601]汪：
-[02:34.83301]是你让我的生活从此都只要你配合
-[02:39.055]花澤香菜：
-[02:39.799]爱要精心来雕刻
-[02:41.47299]汪：
-[02:41.65]我是米开朗基罗
-[02:43.604]合：
-[02:44.123]用心刻画最幸福的风格
-[02:47.49701]花澤香菜：
-[02:48.804]是你让我看见干枯沙漠开出花一朵
-[02:52.93]汪：
-[02:53.111]是你让我想要每天为你写一首情歌
-[02:57.354]花澤香菜：
-[02:58.013]用最浪漫的副歌
-[02:59.643]汪：
-[02:59.85901]你也轻轻的附和
-[03:01.986]合：
-[03:02.537]眼神坚定着我们的选择
-[03:05.618]花澤香菜：
-[03:06.755]是你让我的世界从那刻变成粉红色
-[03:11.069]汪：
-[03:11.263]是你让我的生活从此都只要你配合
-[03:15.627]花澤香菜：
-[03:16.317]爱要精心来雕刻
-[03:17.949]汪：
-[03:18.177]我是米开朗基罗
-[03:20.434]合：
-[03:20.706]用心刻画最幸福的风格
-[03:25.369]用心刻画最幸福的风格
-`
-        };
-
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        const actx = new AudioContext();
-
-        function playTone(freq, type, duration, vol=0.1) {
-            if(actx.state === 'suspended') actx.resume();
-            const osc = actx.createOscillator();
-            const gain = actx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, actx.currentTime);
-            gain.gain.setValueAtTime(vol, actx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, actx.currentTime + duration);
-            osc.connect(gain);
-            gain.connect(actx.destination);
-            osc.start();
-            osc.stop(actx.currentTime + duration);
-        }
-        function playTypingSound() { playTone(800 + Math.random()*200, 'sine', 0.05, 0.05); }
-        function playSentSound() {
-            if(actx.state === 'suspended') actx.resume();
-            const osc = actx.createOscillator();
-            const gain = actx.createGain();
-            osc.frequency.setValueAtTime(400, actx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1200, actx.currentTime + 0.3);
-            gain.gain.setValueAtTime(0.1, actx.currentTime);
-            gain.gain.linearRampToValueAtTime(0, actx.currentTime + 0.3);
-            osc.connect(gain); gain.connect(actx.destination); osc.start(); osc.stop(actx.currentTime + 0.3);
-        }
-        function playWinSound() {
-            [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => { setTimeout(() => { playTone(freq, 'triangle', 0.6, 0.2); }, i * 100); });
-        }
-
-        const chatContainer = document.getElementById('chat-container');
-        const audio = document.getElementById('bgm');
-        const lyricBar = document.getElementById('lyric-bar');
-        const bigLyric = document.getElementById('big-lyric');
-        let isLocked = true;
-        let isPartyMode = false;
-        let typingInterval;
-
-        function unlockPhone() {
-            if (!isLocked) return;
-            isLocked = false;
-            if(actx.state === 'suspended') actx.resume();
-            document.getElementById('lock-screen').style.transform = 'translateY(-100%)';
-            audio.load(); 
-            playTone(1200, 'sine', 0.1, 0.1);
-            setTimeout(startChatSimulation, 800);
-        }
-
-        async function startChatSimulation() {
-            for (let step of CONFIG.chatSequence) { await handleChatStep(step); }
-        }
-
-        function wait(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-
-        async function handleChatStep(step) {
-            switch (step.type) {
-                case 'typing_self':
-                    const typingBubble = document.createElement('div');
-                    typingBubble.className = 'typing-indicator';
-                    typingBubble.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
-                    typingBubble.style.display = 'inline-block';
-                    chatContainer.appendChild(typingBubble);
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                    typingInterval = setInterval(playTypingSound, 150); 
-                    await wait(step.duration);
-                    clearInterval(typingInterval);
-                    typingBubble.remove();
-                    break;
-                case 'text_temp':
-                    playSentSound();
-                    const tempMsg = addMessage('sent', step.text);
-                    await wait(step.duration);
-                    tempMsg.style.transition = 'opacity 0.5s'; tempMsg.style.opacity = '0.5';
-                    setTimeout(() => {
-                        playTone(300, 'square', 0.1, 0.05);
-                        tempMsg.innerText = '"小笨蛋" 撤回了一条消息';
-                        tempMsg.style.fontSize = '0.8rem'; tempMsg.style.background = 'transparent'; tempMsg.style.color = '#aaa';
-                        tempMsg.style.padding = '5px 0'; tempMsg.style.textAlign = 'center'; tempMsg.style.boxShadow = 'none';
-                    }, 500);
-                    await wait(800);
-                    break;
-                case 'text_sent':
-                    playSentSound(); addMessage('sent', step.text); await wait(1000); break;
-                case 'voice_sent':
-                    playSentSound(); addVoiceMessage(step.text, step.duration); break;
-            }
-        }
-
-        function addMessage(type, htmlContent) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${type}`;
-            msgDiv.innerHTML = htmlContent;
-            chatContainer.appendChild(msgDiv); chatContainer.scrollTop = chatContainer.scrollHeight; return msgDiv;
-        }
-
-        function addVoiceMessage(text, duration) {
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message sent voice-bubble`;
-            msgDiv.innerHTML = `<svg class="voice-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg><span style="margin-left: 10px;">${text}</span><span style="font-size: 0.8rem; margin-left: 10px; opacity: 0.8;">${duration}</span>`;
-            
-            // 💡 这里的逻辑就是：点击语音条 -> 播放音乐 -> 显示表白卡
-            msgDiv.onclick = function() {
-                if (audio.paused) {
-                    audio.play(); 
-                    this.classList.add('playing'); 
-                    this.style.background = "#ff9a9e"; 
-                    showConfessionCard(); 
-                    // 音乐一响，顶部歌词马上显示！
-                    lyricBar.style.opacity = 1;
-                } else {
-                    // 如果再点一次可以暂停
-                    audio.pause(); 
-                    this.classList.remove('playing'); 
-                    this.style.background = "#ffbdd0";
-                }
-            };
-            chatContainer.appendChild(msgDiv); chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        function showConfessionCard() {
-            const card = document.getElementById('confession-card');
-            const cardText = document.getElementById('card-text');
-            let i = 0; cardText.innerHTML = ""; card.style.bottom = "0"; 
-            function typeCard() {
-                if (i < CONFIG.finalLetter.length) {
-                    cardText.innerHTML += CONFIG.finalLetter.charAt(i) === '\n' ? '<br>' : CONFIG.finalLetter.charAt(i);
-                    i++; playTypingSound(); setTimeout(typeCard, 50);
-                }
-            }
-            setTimeout(typeCard, 600);
-        }
-
-        function runAway(btn) {
-            const x = (Math.random() * 200 - 100); const y = (Math.random() * 200 - 100); 
-            btn.style.transform = `translate(${x}px, ${y}px)`;
-            btn.innerText = ["哎呀滑走了", "点不到", "略略略", "哒咩"][Math.floor(Math.random()*4)];
-            playTone(300, 'sawtooth', 0.1, 0.1);
-        }
-
-        function agree() {
-            playWinSound();
-            isPartyMode = true;
-
-            // 界面切换：隐藏文字，显示唱片
-            const textWrapper = document.getElementById('text-content-wrapper');
-            const musicPlayer = document.getElementById('music-player-ui');
-            const card = document.getElementById('confession-card');
-
-            textWrapper.style.opacity = 0;
+            startMask.style.opacity = '0';
             setTimeout(() => {
-                textWrapper.style.display = 'none';
-                musicPlayer.style.display = 'flex';
-                void musicPlayer.offsetWidth; 
-                musicPlayer.style.opacity = 1;
-                card.style.height = "60%";
-                card.style.bottom = "10%";
-            }, 500);
-
-            document.body.classList.add('party-mode');
-            setInterval(createFloatEmoji, 800); 
-        }
-
-        function createFloatEmoji() {
-            const emoji = document.createElement('div');
-            emoji.className = 'emoji-float';
-            emoji.innerHTML = ['🍭', '🍬', '🍩', '❤', '😍', '✨', '🎵'][Math.floor(Math.random() * 7)];
-            emoji.style.left = Math.random() * 80 + 10 + 'vw';
-            emoji.style.animationDuration = Math.random() * 3 + 4 + 's';
-            document.body.appendChild(emoji);
-            setTimeout(() => emoji.remove(), 7000);
-        }
-
-        const lyrics = parseLrc(CONFIG.lrcContent);
-        audio.addEventListener('timeupdate', () => {
-            const ct = audio.currentTime;
-            for (let i = lyrics.length - 1; i >= 0; i--) {
-                if (ct >= lyrics[i].time) {
-                    const text = lyrics[i].text;
-                    if (isPartyMode) {
-                        // 派对模式：大歌词跳动
-                        if (bigLyric.innerText !== text) {
-                            bigLyric.style.transform = "scale(1.1)";
-                            bigLyric.style.color = "#ff5e78";
-                            bigLyric.innerText = text;
-                            setTimeout(() => {
-                                bigLyric.style.transform = "scale(1)";
-                                bigLyric.style.color = "#ff88a7";
-                            }, 150);
-                        }
-                    } else {
-                        // 正常模式：顶部小歌词
-                        lyricBar.innerText = "♪ " + text + " ♪";
-                    }
-                    break;
-                }
-            }
+                startMask.style.display = 'none';
+                mainContainer.style.opacity = '1';
+                checkScroll(); // 触发第一屏动画
+            }, 800);
         });
-        function parseLrc(lrc) {
-            const lines = lrc.split('\n'); const result = [];
-            for (let line of lines) {
-                const match = line.match(/\[(\d+):(\d+)(\.\d+)?\](.*)/);
-                if (match) result.push({ time: parseInt(match[1])*60 + parseInt(match[2]) + (match[3]?parseFloat(match[3]):0), text: match[4].trim() });
-            }
-            return result;
+
+        // --- 2. 计时器逻辑 ---
+        const startDate = new Date('2025-09-05T02:51:00').getTime();
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const distance = now - startDate;
+
+            if (distance < 0) { /* 未到时间处理 */ }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = days;
+            document.getElementById('hours').innerText = hours < 10 ? '0' + hours : hours;
+            document.getElementById('minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
+            document.getElementById('seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
+        }
+
+        setInterval(updateTimer, 1000);
+        updateTimer();
+
+        // --- 3. Q弹滚动动画逻辑 (核心升级) ---
+        // 选择所有带有 fade-in-xxx 类的元素
+        const fadeElements = document.querySelectorAll('.fade-in-up, .fade-in-left, .fade-in-right');
+
+        // 使用 IntersectionObserver 监听元素是否进入视口
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // 当元素进入视口大约 15% 时触发
+                if (entry.isIntersecting) {
+                    // 添加 visible 类，触发 CSS 中的 Q 弹过渡动画
+                    entry.target.classList.add('visible');
+                    // 可选：动画完成后停止观察，提升性能
+                    observer.unobserve(entry.target); 
+                }
+            });
+        }, { threshold: 0.15 });
+
+        fadeElements.forEach(el => observer.observe(el));
+
+        // 辅助检查函数，确保首屏元素也能触发
+        function checkScroll() {
+            fadeElements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                if(rect.top < window.innerHeight) {
+                    el.classList.add('visible');
+                }
+            })
         }
     </script>
 </body>
