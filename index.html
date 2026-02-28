@@ -1,404 +1,787 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>西瓜 💖 阿佳</title>
-    <style>
-        /* --- 1. 全局配置 & 公主风背景 --- */
-        :root {
-            --primary: #ff9a9e;
-            --secondary: #fad0c4;
-            --accent: #ff6b81;
-            --text-main: #664455;
-            --chat-bg-me: #a8edea;
-            --chat-bg-her: #fff0f5;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>小游戏合集</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#0d0d1f; color:#fff;
+  font-family:'Arial',sans-serif;
+  overflow:hidden; height:100vh; width:100vw;
+  user-select:none; touch-action:manipulation;
+}
+.screen { position:fixed; inset:0; display:none; flex-direction:column; }
+.screen.active { display:flex; }
 
-        body, html {
-            margin: 0; padding: 0;
-            font-family: "YouYuan", "Microsoft YaHei", "Comic Sans MS", sans-serif;
-            background: linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%);
-            background-size: 400% 400%;
-            overflow-x: hidden;
-            color: var(--text-main);
-        }
+/* ── MENU ── */
+#menu {
+  background:linear-gradient(160deg,#0d0d1f 0%,#1a0a2e 50%,#0d1a2e 100%);
+  overflow-y:auto; padding-bottom:20px;
+}
+.menu-header { padding:44px 24px 16px; text-align:center; }
+.menu-title {
+  font-size:34px; font-weight:900;
+  background:linear-gradient(90deg,#f9ca24,#f0932b,#eb4d4b,#a29bfe);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  margin-bottom:5px;
+}
+.menu-sub { font-size:13px; color:rgba(255,255,255,0.4); }
+.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:13px; padding:10px 16px; }
+.game-card {
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:20px; padding:20px 14px;
+  cursor:pointer; text-align:center;
+  transition:transform .15s;
+  position:relative; overflow:hidden;
+}
+.game-card:active { transform:scale(0.94); background:rgba(255,255,255,0.12); }
+.game-card .icon { font-size:42px; margin-bottom:8px; }
+.game-card .name { font-size:15px; font-weight:700; margin-bottom:3px; }
+.game-card .desc { font-size:11px; color:rgba(255,255,255,0.5); line-height:1.4; }
+.badge {
+  position:absolute; top:9px; right:9px;
+  background:var(--c); border-radius:8px;
+  padding:2px 7px; font-size:10px; font-weight:700; color:#0d0d1f;
+}
+.wide { grid-column:span 2; }
 
-        /* 泡泡背景 */
-        .circles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: -1; }
-        .circles li {
-            position: absolute; display: block; list-style: none;
-            width: 20px; height: 20px; background: rgba(255, 255, 255, 0.6);
-            box-shadow: 0 0 10px rgba(255, 192, 203, 0.5);
-            animation: animate 25s linear infinite; bottom: -150px; border-radius: 50%;
-        }
-        .circles li:nth-child(1) { left: 25%; width: 80px; height: 80px; animation-delay: 0s; background: rgba(255, 182, 193, 0.4); }
-        .circles li:nth-child(2) { left: 10%; width: 30px; height: 30px; animation-delay: 2s; animation-duration: 12s; }
-        .circles li:nth-child(3) { left: 70%; width: 40px; height: 40px; animation-delay: 4s; }
-        .circles li:nth-child(4) { left: 40%; width: 60px; height: 60px; animation-delay: 0s; animation-duration: 18s; }
-        .circles li:nth-child(5) { left: 65%; width: 25px; height: 25px; animation-delay: 0s; }
-        .circles li:nth-child(6) { left: 75%; width: 90px; height: 90px; animation-delay: 3s; background: rgba(255, 228, 225, 0.5);}
-        @keyframes animate {
-            0% { transform: translateY(0) scale(0.8); opacity: 0.8; }
-            100% { transform: translateY(-1000px) scale(1.2); opacity: 0; }
-        }
+/* ── GAME SHELL ── */
+.game-screen { background:#0a0a1a; }
+.game-header {
+  display:flex; align-items:center; padding:11px 14px;
+  background:rgba(0,0,0,0.35); backdrop-filter:blur(10px);
+  gap:10px; flex-shrink:0; z-index:5;
+}
+.back-btn {
+  background:rgba(255,255,255,0.1); border:none; color:#fff;
+  width:34px; height:34px; border-radius:50%; font-size:17px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.back-btn:active { background:rgba(255,255,255,0.22); }
+.game-title { font-size:17px; font-weight:700; flex:1; }
+.tag {
+  font-size:13px; background:rgba(255,255,255,0.1);
+  padding:4px 12px; border-radius:16px;
+}
+.game-content { flex:1; position:relative; overflow:hidden; }
 
-        /* --- 2. 悬浮歌词 --- */
-        #lyrics-box {
-            position: fixed;
-            bottom: 30px; left: 50%; transform: translateX(-50%);
-            width: 90%; text-align: center; z-index: 900; pointer-events: none;
-            background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(4px);
-            border-radius: 30px; padding: 10px 15px;
-            border: 1px solid rgba(255,255,255,0.4);
-            box-shadow: 0 4px 15px rgba(255, 107, 129, 0.2);
-            opacity: 0; transition: opacity 1s, transform 0.3s;
-        }
-        #lyrics-text {
-            font-size: 16px; color: #fff;
-            text-shadow: 0 2px 4px rgba(255, 105, 180, 0.8);
-            font-weight: bold; margin: 0; transition: all 0.3s ease;
-        }
-        #lyrics-text.highlight { transform: scale(1.05); }
+/* ── OVERLAY ── */
+.ov {
+  position:absolute; inset:0;
+  background:rgba(0,0,0,0.78); backdrop-filter:blur(8px);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  z-index:20; gap:14px;
+}
+.ov.gone { display:none; }
+.ov .big { font-size:64px; }
+.ov h2 { font-size:32px; }
+.ov p { font-size:14px; color:rgba(255,255,255,0.6); text-align:center; padding:0 22px; line-height:1.6; }
+.ov .result { font-size:56px; font-weight:900;
+  background:linear-gradient(90deg,#f9ca24,#eb4d4b);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.btn {
+  background:linear-gradient(135deg,#6c5ce7,#a29bfe);
+  border:none; color:#fff; padding:13px 38px;
+  border-radius:28px; font-size:16px; font-weight:700;
+  cursor:pointer; box-shadow:0 4px 20px rgba(108,92,231,.45);
+}
+.btn:active { transform:scale(0.97); }
+.btn-ghost { background:none; border:none; color:rgba(255,255,255,0.4); font-size:13px; cursor:pointer; }
 
-        /* --- 3. 开屏 & 音乐图标 --- */
-        #start-mask {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-            background: rgba(255, 192, 203, 0.95); z-index: 999;
-            display: flex; justify-content: center; align-items: center; flex-direction: column;
-            color: #fff; transition: opacity 0.8s; backdrop-filter: blur(10px);
-        }
-        .heartbeat-btn {
-            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
-            padding: 15px 45px; border-radius: 50px; font-size: 20px; font-weight: bold;
-            color: #fff; border: 3px solid rgba(255,255,255,0.5);
-            animation: pulse 1.5s infinite; cursor: pointer;
-            box-shadow: 0 5px 25px rgba(255, 107, 129, 0.4);
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-        .music-control {
-            position: fixed; top: 20px; right: 20px; width: 40px; height: 40px;
-            background: rgba(255,255,255,0.9); border-radius: 50%; color: var(--accent);
-            z-index: 100; display: flex; justify-content: center; align-items: center;
-            font-size: 20px; box-shadow: 0 4px 10px rgba(255, 107, 129, 0.2);
-            opacity: 0; transition: opacity 1s;
-        }
-        .music-control.playing { animation: spin 3s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+/* ── LIVES ── */
+.lives { display:flex; gap:4px; }
+.life { font-size:17px; transition:opacity .3s; }
+.life.lost { opacity:0.2; filter:grayscale(1); }
 
-        /* --- 4. 内容布局 --- */
-        .container { max-width: 600px; margin: 0 auto; padding-bottom: 80px; opacity: 0; transition: opacity 1s; }
-        section {
-            min-height: 90vh; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; padding: 20px;
-            text-align: center; position: relative;
-        }
-        .chat-container { width: 100%; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px; }
-        .chat-msg {
-            max-width: 80%; padding: 14px 18px; border-radius: 20px; position: relative;
-            font-size: 15px; line-height: 1.5; box-shadow: 0 4px 15px rgba(255, 107, 129, 0.1);
-            text-align: left; opacity: 0; 
-        }
-        .chat-msg.me { align-self: flex-end; background-color: var(--chat-bg-me); color: #333; border-bottom-right-radius: 5px; }
-        .chat-msg.her { align-self: flex-start; background-color: var(--chat-bg-her); color: #333; border: 2px solid #fff0f5; border-bottom-left-radius: 5px; }
-        .chat-date { font-size: 12px; color: var(--accent); opacity: 0.7; margin-bottom: 5px; text-align: center; width: 100%; margin-top: 10px; }
-        .card-text {
-            background: rgba(255,255,255,0.85); padding: 25px; border-radius: 25px;
-            margin: 15px 0; font-size: 16px; line-height: 1.7; color: var(--text-main);
-            width: 82%; box-shadow: 0 8px 20px rgba(255, 107, 129, 0.1); border: 2px solid #fff;
-        }
-        .timer-box {
-            background: rgba(255,255,255,0.95); padding: 35px; border-radius: 30px;
-            box-shadow: 0 15px 35px rgba(255, 107, 129, 0.15); width: 85%; border: 3px solid #fff;
-        }
-        .timer-number {
-            font-size: 36px; font-weight: 900;
-            background: linear-gradient(to right, var(--primary), var(--accent));
-            -webkit-background-clip: text; color: transparent;
-            font-variant-numeric: tabular-nums;
-        }
-        
-        :root { --bounce-easing: cubic-bezier(0.68, -0.6, 0.32, 1.6); }
-        .fade-in-up { opacity: 0; transform: translateY(50px) scale(0.9); transition: all 0.8s var(--bounce-easing); }
-        .fade-in-left { opacity: 0; transform: translateX(-50px) scale(0.9); transition: all 0.8s var(--bounce-easing); }
-        .fade-in-right { opacity: 0; transform: translateX(50px) scale(0.9); transition: all 0.8s var(--bounce-easing); }
-        .visible { opacity: 1; transform: translate(0) scale(1); }
-        
-        .emoji-avatar {
-            font-size: 70px; margin-bottom: 25px;
-            filter: drop-shadow(0 5px 10px rgba(255, 107, 129, 0.3));
-            animation: floatEmoji 3s ease-in-out infinite;
-        }
-        @keyframes floatEmoji { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-    </style>
+/* ── MEMORY ── */
+#memory-grid {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:9px; padding:14px; height:100%; align-content:center;
+}
+.mc {
+  aspect-ratio:1; cursor:pointer;
+  transform-style:preserve-3d; transition:transform .32s;
+  position:relative;
+}
+.mc.flipped { transform:rotateY(180deg); }
+.mc-f,.mc-b {
+  position:absolute; inset:0; border-radius:13px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:26px; backface-visibility:hidden;
+}
+.mc-f { background:rgba(255,255,255,0.07); border:2px solid rgba(255,255,255,0.13); color:rgba(255,255,255,0.25); }
+.mc-b { background:rgba(108,92,231,0.28); border:2px solid rgba(108,92,231,0.55); transform:rotateY(180deg); }
+.mc.matched .mc-b { background:rgba(0,210,130,0.28); border-color:rgba(0,210,130,0.65); }
+
+/* ── REACTION ── */
+#rx-box {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:18px; cursor:pointer; padding:20px;
+}
+#rx-circle {
+  width:170px; height:170px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  flex-direction:column; gap:6px; transition:all .25s;
+  box-shadow:0 0 60px currentColor;
+}
+#rx-circle .icon { font-size:38px; }
+#rx-circle .txt { font-size:14px; font-weight:700; }
+#rx-results { width:100%; max-width:320px; }
+.rbar { display:flex; align-items:center; gap:9px; margin-bottom:9px; font-size:13px; }
+.rbar-fill { height:18px; border-radius:9px; min-width:4px; transition:width .5s; }
+
+/* ── MOLE ── */
+#mole-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:12px; padding:18px; height:100%; align-content:center;
+}
+.hole {
+  aspect-ratio:1;
+  background:rgba(0,0,0,0.45);
+  border:2px solid rgba(255,255,255,0.1);
+  border-radius:20px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:40px; cursor:pointer; position:relative; overflow:hidden;
+  transition:transform .1s;
+}
+.hole:active { transform:scale(0.92); }
+@keyframes floatPt {
+  0%   { transform:translate(-50%,-50%) scale(1); opacity:1; }
+  100% { transform:translate(-50%,-200%) scale(1.2); opacity:0; }
+}
+.floatpt {
+  position:absolute; top:50%; left:50%;
+  font-size:20px; font-weight:900;
+  pointer-events:none; z-index:5;
+  animation:floatPt .75s ease-out forwards;
+}
+</style>
 </head>
 <body>
-    <div id="lyrics-box"><p id="lyrics-text">🎵 歌词准备中...</p></div>
-    <ul class="circles"><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li><li></li></ul>
-    <audio id="bgm" loop><source src="许嵩 - 我很喜欢.mp3" type="audio/mpeg"></audio>
-    <audio id="sfx-start"><source src="start.wav" type="audio/wav"></audio>
-    <div class="music-control" id="music-icon">🎵</div>
 
-    <div id="start-mask">
-        <div style="font-size: 60px; margin-bottom: 20px;">💖</div>
-        <div style="margin-bottom: 30px; font-size: 18px; font-weight: bold;">To: 阿佳小公主</div>
-        <div class="heartbeat-btn" id="start-btn">开启专属惊喜 ✨</div>
+<!-- ===== MENU ===== -->
+<div id="menu" class="screen active">
+  <div class="menu-header">
+    <div class="menu-title">🎮 小游戏合集</div>
+    <div class="menu-sub">5款手机小游戏，随时随地开玩</div>
+  </div>
+  <div class="game-grid">
+    <div class="game-card" onclick="open_('balloon')">
+      <div class="badge" style="--c:#f9ca24">经典</div>
+      <div class="icon">🎈</div>
+      <div class="name">打气球</div>
+      <div class="desc">快速点击，别让气球飞走！</div>
     </div>
-
-    <div class="container" id="main-container">
-        <section>
-            <div class="fade-in-up" style="display: flex; align-items: center; justify-content: center; gap: 20px;">
-                <span style="font-size: 70px; display:inline-block; transform: rotate(-10deg);">🍉</span>
-                <span style="font-size: 40px; color: var(--accent); animation: pulse 1s infinite;">💞</span>
-                <img src="girl.png" style="width: 100px; height: 100px; object-fit: contain; transform: rotate(10deg); filter: drop-shadow(0 4px 4px rgba(255,192,203,0.5));" alt="阿佳">
-            </div>
-            <h1 class="fade-in-up" style="margin-top: 25px; color: #fff; font-size: 32px; text-shadow: 0 2px 10px rgba(255, 107, 129, 0.5);">西瓜 & 阿佳</h1>
-            <p class="fade-in-up" style="color: var(--text-main); font-weight:500; margin-top: 15px; background: rgba(255,255,255,0.6); padding: 5px 15px; border-radius: 20px;">我很喜欢和你做做伴~</p>
-            <div class="fade-in-up" style="position: absolute; bottom: 50px; color: var(--accent); font-size: 14px; animation: bounce 2s infinite;">
-                下滑进入回忆 ↓
-            </div>
-        </section>
-
-        <section>
-            <div class="chat-container">
-                <div class="chat-date fade-in-up">🌸 6月1日 🌸</div>
-                <div class="chat-msg me fade-in-right">猪包</div>
-            </div>
-            <p class="fade-in-up" style="margin-top: 30px; font-size: 15px; font-weight: 500;">那天，这简单的两个字<br>是我试探着发出的第一条信号。</p>
-        </section>
-
-        <section>
-            <div class="emoji-avatar fade-in-up">✨🌙✨</div>
-            <h2 class="fade-in-up" style="color: var(--accent); font-size: 22px; margin-bottom: 25px;">命运转动的时刻</h2>
-            <div class="chat-container">
-                <div class="chat-date fade-in-up">🎀 2025年9月5日 02:51 🎀</div>
-                <div class="chat-msg her fade-in-left">笑死我了 自己一边玩一边解说 可以嘟</div>
-                <div class="chat-msg her fade-in-left" style="transition-delay: 0.3s;">我之前也想玩露娜 别人教我半天</div>
-            </div>
-            <p class="fade-in-up" style="margin-top: 40px; font-size: 15px; font-weight: 500;">就在那个深夜，屏幕亮起。<br>我的世界也被点亮了。</p>
-        </section>
-
-        <section>
-            <div class="fade-in-up" style="font-size: 60px; margin-bottom: 20px;">🎮🎧</div>
-            <h2 class="fade-in-up" style="color: var(--text-main); font-size: 20px; margin-bottom: 25px;">从游戏到生活</h2>
-            <div class="card-text fade-in-right">可能我不是全场最佳的野王，<br>但我想做你专属的辅助。保护你！🛡️</div>
-            <div class="card-text fade-in-right" style="transition-delay: 0.3s;">听筒里传来的声音，<br>比游戏胜利的音效好听一万倍。</div>
-        </section>
-
-        <section>
-            <div class="fade-in-up" style="font-size: 60px; margin-bottom: 20px;">🍯🧸</div>
-            <h2 class="fade-in-up" style="color: var(--text-main); font-size: 20px; margin-bottom: 25px;">一种可爱的习惯</h2>
-            <div class="card-text fade-in-left">以前觉得手机只是通讯工具，<br>现在手机是你存在的传送门。🚪</div>
-            <div class="card-text fade-in-left" style="transition-delay: 0.3s;">早安是开始，晚安是结束，<br>中间的每一句碎碎念，<br>都是“我在乎你”的证据。</div>
-        </section>
-
-        <section>
-            <div class="fade-in-up" style="font-size: 60px; margin-bottom: 20px;">☁️🍰</div>
-            <h2 class="fade-in-up" style="color: var(--text-main); font-size: 20px; margin-bottom: 25px;">关于“分享欲”</h2>
-            <div class="card-text fade-in-right">看到好看的云，吃到好吃的饭，<br>第一反应不是发朋友圈，<br>而是打开和你的对话框。📸</div>
-            <div class="card-text fade-in-right" style="transition-delay: 0.3s;">因为我想让你参与我生活的每一帧。</div>
-        </section>
-
-        <section>
-            <div class="fade-in-up" style="font-size: 60px; margin-bottom: 20px;">🪐🌟</div>
-            <h2 class="fade-in-up" style="color: var(--text-main); font-size: 20px; margin-bottom: 25px;">你很特别</h2>
-            <div class="card-text fade-in-left">世界很嘈杂，但你的声音很治愈。<br>生活很普通，但你的出现很惊喜。</div>
-            <div class="card-text fade-in-left" style="transition-delay: 0.3s;">你就像我的“阿佳”星系里，<br>最亮的那颗小星星。⭐</div>
-        </section>
-
-        <section>
-            <div class="fade-in-up" style="font-size: 60px; margin-bottom: 20px;">🗺️💕</div>
-            <div class="card-text fade-in-up">我不擅长记日子，<br>但我擅长在心里给你留位置，最重要的位置。</div>
-            <div class="card-text fade-in-up" style="transition-delay: 0.3s;">没见面的日子里，<br>我们都在努力成为更好的自己。<br>只为了初见那一刻，是最好的我们。</div>
-        </section>
-
-        <section>
-            <div class="timer-box fade-in-up">
-                <div class="timer-title">✨ 我们已经相识了 ✨</div>
-                <div class="timer-number" id="days">0</div>
-                <div style="font-size: 14px; color: var(--primary); margin-bottom: 20px;">Days</div>
-                <div style="display: flex; justify-content: space-around; border-top: 2px dashed rgba(255, 107, 129, 0.2); padding-top: 20px;">
-                    <div><div class="timer-number" style="font-size: 24px;" id="hours">00</div><div style="font-size: 12px; color: var(--primary);">Hours</div></div>
-                    <div><div class="timer-number" style="font-size: 24px;" id="minutes">00</div><div style="font-size: 12px; color: var(--primary);">Mins</div></div>
-                    <div><div class="timer-number" style="font-size: 24px;" id="seconds">00</div><div style="font-size: 12px; color: var(--primary);">Secs</div></div>
-                </div>
-            </div>
-            <p class="fade-in-up" style="margin-top: 35px; font-size: 15px; color: var(--accent);">从 2025.09.05 02:51 开始，<br>每一秒都值得被记录。⏳</p>
-        </section>
-
-        <section>
-            <div class="fade-in-up" style="background: rgba(255,255,255,0.9); padding: 45px 35px; border-radius: 30px; margin: 20px; box-shadow: 0 20px 50px rgba(255, 107, 129, 0.2); border: 3px solid #fff;">
-                <p style="font-size: 18px; font-weight: bold; margin-bottom: 25px; color: var(--accent);">To 公主阿佳：👸</p>
-                <p style="line-height: 2;">虽然我们还没见过面，</p>
-                <p style="line-height: 2;">但请相信，</p>
-                <p style="line-height: 2;">所有的等待，都是为了相见时的那个拥抱。</p>
-                <div style="margin-top: 45px; font-weight: 900; color: var(--accent); font-size: 20px; letter-spacing: 1px;">✨ 期待那一天的到来 ✨</div>
-            </div>
-            <footer style="margin-top: 60px; font-size: 14px; color: var(--primary); opacity: 0.8;">Made with 💖 by 西瓜 🍉</footer>
-        </section>
+    <div class="game-card" onclick="open_('memory')">
+      <div class="badge" style="--c:#a29bfe">益智</div>
+      <div class="icon">🃏</div>
+      <div class="name">记忆翻牌</div>
+      <div class="desc">找到所有匹配的对子！</div>
     </div>
+    <div class="game-card" onclick="open_('meteor')">
+      <div class="badge" style="--c:#eb4d4b">动作</div>
+      <div class="icon">🚀</div>
+      <div class="name">躲陨石</div>
+      <div class="desc">拖动飞船，躲避石块！</div>
+    </div>
+    <div class="game-card" onclick="open_('reaction')">
+      <div class="badge" style="--c:#00d2d3">挑战</div>
+      <div class="icon">⚡</div>
+      <div class="name">反应测试</div>
+      <div class="desc">测测你的反应速度！</div>
+    </div>
+    <div class="game-card wide" onclick="open_('mole')">
+      <div class="badge" style="--c:#55efc4">热门</div>
+      <div class="icon">🐹</div>
+      <div class="name">打地鼠</div>
+      <div class="desc">30秒内打到尽可能多的地鼠，避开炸弹！</div>
+    </div>
+  </div>
+</div>
 
-    <script>
-        const startBtn = document.getElementById('start-btn');
-        const startMask = document.getElementById('start-mask');
-        const mainContainer = document.getElementById('main-container');
-        const bgm = document.getElementById('bgm');
-        const sfxStart = document.getElementById('sfx-start');
-        const musicIcon = document.getElementById('music-icon');
-        const lyricsBox = document.getElementById('lyrics-box');
-        const lyricsText = document.getElementById('lyrics-text');
-        
-        let lrcData = [];
+<!-- ===== BALLOON ===== -->
+<div id="game-balloon" class="screen game-screen">
+  <div class="game-header">
+    <button class="back-btn" onclick="close_('balloon')">←</button>
+    <span class="game-title">🎈 打气球</span>
+    <span class="tag" id="b-score">0 分</span>
+    <div class="lives" id="b-lives"></div>
+  </div>
+  <div class="game-content">
+    <canvas id="b-canvas"></canvas>
+    <div class="ov" id="b-ov">
+      <div class="big">🎈</div>
+      <h2>打气球</h2>
+      <p>快速点击气球得分<br>失去 3 个气球游戏结束</p>
+      <button class="btn" onclick="startBalloon()">开始</button>
+    </div>
+  </div>
+</div>
 
-        // ⚠️⚠️⚠️ 请在下面这一行，把你的歌词粘贴进去，保留反引号 ` ` ⚠️⚠️⚠️
-        const lrcFileContent = `
-[00:00.0]我很喜欢 - 许嵩 (Vae Xu)
-[00:00.24]词：许嵩
-[00:00.49]曲：许嵩
-[00:00.73]编曲：许嵩
-[00:00.98]删 舍不得删
-[00:04.48]可是手机空间已经被你占满
-[00:09.34]转 地球在转
-[00:12.41]我深爱的你却在世界的另一端
-[00:17.39]我的思绪和记忆开始混乱
-[00:21.95]陷在爱里的人都是如此
-[00:25.09]不想想太多 不想说太多
-[00:28.85]让我一个人回忆承诺
-[00:33.37]我很喜欢和你做做伴
-[00:37.52]听听歌聊聊天就很愉快
-[00:41.42]我也喜欢上马路乱踩
-[00:45.44]看完电影去找招牌菜
-[00:49.4]我想带你去游山玩水
-[00:53.47]看那落霞与孤鹜齐飞
-[00:57.48]我们说好一辈子不反悔
-[01:01.47]永远做彼此的baby
-[01:21.51]删 舍不得删
-[01:24.56]可是手机空间已经被你占满
-[01:29.54]转 地球在转
-[01:32.55]我深爱的你却在世界的另一端
-[01:37.42]我的思绪和记忆开始混乱
-[01:41.92]陷在爱里的人都是如此
-[01:45.03]不想想太多 不想说太多
-[01:48.86]让我一个人回忆承诺
-[01:53.33]我很喜欢和你做做伴
-[01:57.509995]听听歌聊聊天就很愉快
-[02:01.6]我也喜欢上马路乱踩
-[02:05.57]看完电影去找招牌菜
-[02:09.59]我想带你去游山玩水
-[02:13.58]看那落霞与孤鹜齐飞
-[02:17.5]我们说好一辈子不反悔
-[02:21.54001]永远做彼此的baby
-[02:25.39]一个人走在熟悉的街头
-[02:29.37]少了你只能沉默
-[02:33.29001]想起了太多
-[02:35.35]想说的话好多
-[02:37.28]我会一直等你回来
-[02:41.47]我很喜欢和你做做伴
-[02:45.51]听听歌聊聊天就很愉快
-[02:49.58]我也喜欢上马路乱踩
-[02:53.65]看完电影去找招牌菜
-[02:57.65]我想带你去游山玩水
-[03:01.56]看那落霞与孤鹜齐飞
-[03:05.63]我们说好一辈子不反悔
-[03:09.64]永远做彼此的baby
-`;
-        
-        // 解析粘贴进来的歌词
-        function parseLrc(text) {
-            if(!text) return;
-            const lines = text.split('\n');
-            const timeReg = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
-            lrcData = [];
-            lines.forEach(line => {
-                const match = timeReg.exec(line);
-                if (match) {
-                    const min = parseInt(match[1]);
-                    const sec = parseInt(match[2]);
-                    const ms = parseInt(match[3]);
-                    const time = min * 60 + sec + ms / (match[3].length === 3 ? 1000 : 100);
-                    const content = line.replace(timeReg, '').trim();
-                    if (content) lrcData.push({ time: time, text: content });
-                }
-            });
+<!-- ===== MEMORY ===== -->
+<div id="game-memory" class="screen game-screen">
+  <div class="game-header">
+    <button class="back-btn" onclick="close_('memory')">←</button>
+    <span class="game-title">🃏 记忆翻牌</span>
+    <span class="tag" id="m-score">0 步</span>
+  </div>
+  <div class="game-content">
+    <div id="memory-grid"></div>
+    <div class="ov" id="m-ov">
+      <div class="big">🃏</div>
+      <h2>记忆翻牌</h2>
+      <p>翻开两张牌找到相同对子<br>用最少的步数完成挑战！</p>
+      <button class="btn" onclick="startMemory()">开始</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== METEOR ===== -->
+<div id="game-meteor" class="screen game-screen">
+  <div class="game-header">
+    <button class="back-btn" onclick="close_('meteor')">←</button>
+    <span class="game-title">🚀 躲陨石</span>
+    <span class="tag" id="mt-score">0 分</span>
+    <div class="lives" id="mt-lives"></div>
+  </div>
+  <div class="game-content">
+    <canvas id="mt-canvas"></canvas>
+    <div class="ov" id="mt-ov">
+      <div class="big">🚀</div>
+      <h2>躲陨石</h2>
+      <p>左右拖动控制飞船<br>生存越久分数越高！</p>
+      <button class="btn" onclick="startMeteor()">开始</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== REACTION ===== -->
+<div id="game-reaction" class="screen game-screen">
+  <div class="game-header">
+    <button class="back-btn" onclick="close_('reaction')">←</button>
+    <span class="game-title">⚡ 反应测试</span>
+    <span class="tag" id="rx-round">第 1 / 5 轮</span>
+  </div>
+  <div class="game-content" style="display:flex;flex-direction:column;">
+    <div class="ov" id="rx-ov">
+      <div class="big">⚡</div>
+      <h2>反应测试</h2>
+      <p>变绿后立刻点击！<br>共 5 轮，看看你的平均反应时间</p>
+      <button class="btn" onclick="startReaction()">开始测试</button>
+    </div>
+    <div id="rx-box" onclick="rxTap()">
+      <div id="rx-circle">
+        <div class="icon">⏳</div>
+        <div class="txt">等待开始</div>
+      </div>
+      <div id="rx-results"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MOLE ===== -->
+<div id="game-mole" class="screen game-screen">
+  <div class="game-header">
+    <button class="back-btn" onclick="close_('mole')">←</button>
+    <span class="game-title">🐹 打地鼠</span>
+    <span class="tag" id="mo-score">0 分</span>
+    <span class="tag" id="mo-timer" style="background:rgba(235,77,75,.2)">30s</span>
+  </div>
+  <div class="game-content">
+    <div id="mole-grid"></div>
+    <div class="ov" id="mo-ov">
+      <div class="big">🐹</div>
+      <h2>打地鼠</h2>
+      <p>30秒内打到尽可能多的地鼠！<br>打到炸弹 💣 会扣 5 分</p>
+      <button class="btn" onclick="startMole()">开始</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════
+// SCREEN MANAGEMENT
+// ════════════════════════════════
+const loops = {};
+let curGame = null;
+
+function open_(name) {
+  document.getElementById('menu').classList.remove('active');
+  document.getElementById('game-' + name).classList.add('active');
+  curGame = name;
+}
+
+function close_(name) {
+  killLoops();
+  document.getElementById('game-' + name).classList.remove('active');
+  document.getElementById('menu').classList.add('active');
+  const ov = document.getElementById(name[0] === 'm' ? (name === 'meteor' ? 'mt' : name === 'memory' ? 'm' : 'mo') : name[0] + '') + '-ov';
+  // Restore overlays by showing them
+  document.querySelectorAll('#game-' + name + ' .ov').forEach(el => el.classList.remove('gone'));
+  curGame = null;
+}
+
+function killLoops() {
+  Object.values(loops).forEach(id => { cancelAnimationFrame(id); clearInterval(id); clearTimeout(id); });
+  for (const k in loops) delete loops[k];
+}
+
+function ov(id)      { return document.getElementById(id); }
+function hide(id)    { ov(id).classList.add('gone'); }
+function show(id)    { ov(id).classList.remove('gone'); }
+function setLives(prefix, n, emoji) {
+  const el = document.getElementById(prefix + '-lives');
+  el.innerHTML = [0,1,2].map(i => `<span class="life${i>=n?' lost':''}">${emoji}</span>`).join('');
+}
+
+function gameOver(prefix, scoreVal, win = false) {
+  const ovId = {balloon:'b-ov', memory:'m-ov', meteor:'mt-ov', mole:'mo-ov'}[prefix];
+  const restartFn = {balloon:'startBalloon()', memory:'startMemory()', meteor:'startMeteor()', mole:'startMole()'}[prefix];
+  ov(ovId).innerHTML = `
+    <div class="big">${win ? '🎉' : '💀'}</div>
+    <h2>${win ? '恭喜完成！' : '游戏结束'}</h2>
+    <div class="result">${scoreVal}</div>
+    <button class="btn" onclick="${restartFn}">再玩一次</button>
+    <button class="btn-ghost" onclick="close_('${prefix}')">返回菜单</button>
+  `;
+  show(ovId);
+}
+
+// ════════════════════════════════
+// 🎈 BALLOON
+// ════════════════════════════════
+function startBalloon() {
+  hide('b-ov');
+  const canvas = ov('b-canvas');
+  const con = canvas.parentElement;
+  canvas.width = con.offsetWidth;
+  canvas.height = con.offsetHeight;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const COLORS = ['#f9ca24','#f0932b','#eb4d4b','#a29bfe','#55efc4','#fd79a8','#00d2d3'];
+
+  let score = 0, lives = 3, balloons = [], lastSpawn = 0, spawnGap = 1100, level = 1;
+  setLives('b', 3, '❤️');
+
+  function spawn(now) {
+    if (now - lastSpawn < spawnGap) return;
+    lastSpawn = now;
+    const r = 24 + Math.random() * 14;
+    balloons.push({
+      x: r + Math.random() * (W - r * 2),
+      y: H + r * 2,
+      r, speed: 1.4 + Math.random() * 1.4 + level * 0.25,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      wobble: Math.random() * Math.PI * 2,
+      pts: r < 30 ? 30 : r < 36 ? 20 : 10,
+      popped: false, popT: 0
+    });
+  }
+
+  function drawBalloon(b) {
+    const wx = b.x + Math.sin(b.wobble) * 7;
+    ctx.save();
+    if (b.popped) {
+      ctx.globalAlpha = b.popT;
+      ctx.strokeStyle = b.color; ctx.lineWidth = 2.5;
+      for (let i = 0; i < 8; i++) {
+        const a = i / 8 * Math.PI * 2, len = b.r * (1.4 - b.popT);
+        ctx.beginPath(); ctx.moveTo(wx, b.y);
+        ctx.lineTo(wx + Math.cos(a) * len, b.y + Math.sin(a) * len); ctx.stroke();
+      }
+    } else {
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(wx, b.y + b.r); ctx.lineTo(wx, b.y + b.r + 22); ctx.stroke();
+      ctx.shadowBlur = 18; ctx.shadowColor = b.color;
+      ctx.fillStyle = b.color;
+      ctx.beginPath(); ctx.arc(wx, b.y, b.r, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,0.28)';
+      ctx.beginPath(); ctx.ellipse(wx - b.r*.28, b.y - b.r*.28, b.r*.28, b.r*.18, -0.5, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.font = `bold ${Math.max(9, b.r * 0.48)}px Arial`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(b.pts, wx, b.y);
+    }
+    ctx.restore();
+  }
+
+  function tap(clientX, clientY) {
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left, y = clientY - rect.top;
+    for (let i = balloons.length - 1; i >= 0; i--) {
+      const b = balloons[i];
+      if (!b.popped && Math.hypot(x - b.x, y - b.y) < b.r + 8) {
+        b.popped = true; b.popT = 1;
+        score += b.pts;
+        ov('b-score').textContent = score + ' 分';
+        break;
+      }
+    }
+  }
+
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    for (const t of e.changedTouches) tap(t.clientX, t.clientY);
+  }, { passive: false });
+  canvas.addEventListener('click', e => tap(e.clientX, e.clientY));
+
+  let running = true;
+  function frame(ts) {
+    if (!running) return;
+    ctx.clearRect(0, 0, W, H);
+    spawn(ts);
+    level = 1 + Math.floor(score / 80);
+    spawnGap = Math.max(450, 1100 - level * 70);
+    balloons = balloons.filter(b => {
+      b.wobble += 0.038;
+      if (!b.popped) {
+        b.y -= b.speed;
+        if (b.y + b.r < 0) {
+          lives--;
+          setLives('b', lives, '❤️');
+          if (lives <= 0) { running = false; gameOver('balloon', score + ' 分'); return false; }
+          return false;
         }
-        
-        // 立即运行解析
-        parseLrc(lrcFileContent);
+      } else {
+        b.popT -= 0.07;
+        if (b.popT <= 0) return false;
+      }
+      drawBalloon(b);
+      return true;
+    });
+    loops.balloon = requestAnimationFrame(frame);
+  }
+  loops.balloon = requestAnimationFrame(frame);
+}
 
-        // 监听音乐进度
-        bgm.addEventListener('timeupdate', () => {
-            if (!lrcData.length) return;
-            const currentTime = bgm.currentTime;
-            let currentLineIndex = -1;
-            for (let i = 0; i < lrcData.length; i++) {
-                if (lrcData[i].time <= currentTime) {
-                    currentLineIndex = i;
-                } else {
-                    break;
-                }
-            }
-            if (currentLineIndex !== -1) {
-                const text = lrcData[currentLineIndex].text;
-                if (lyricsText.innerText !== text) {
-                    lyricsText.innerText = text;
-                    lyricsText.classList.remove('highlight');
-                    void lyricsText.offsetWidth;
-                    lyricsText.classList.add('highlight');
-                }
-            }
-        });
+// ════════════════════════════════
+// 🃏 MEMORY
+// ════════════════════════════════
+const MEM_ICONS = ['🐶','🐱','🐭','🐹','🦊','🐻','🐼','🐨'];
 
-        // 交互逻辑
-        startBtn.addEventListener('click', () => {
-            bgm.play().catch(e => console.log("BGM播放失败", e));
-            if(sfxStart) sfxStart.play().catch(e => console.log("音效播放失败", e));
-            musicIcon.style.opacity = '1';
-            musicIcon.classList.add('playing');
-            lyricsBox.style.opacity = '1'; 
-            startMask.style.opacity = '0';
-            setTimeout(() => {
-                startMask.style.display = 'none';
-                mainContainer.style.opacity = '1';
-                checkScroll(); 
-            }, 800);
-        });
+function startMemory() {
+  hide('m-ov');
+  const grid = ov('memory-grid');
+  grid.innerHTML = '';
+  const pairs = [...MEM_ICONS, ...MEM_ICONS].sort(() => Math.random() - .5);
+  let flipped = [], matched = 0, moves = 0, locked = false;
+  ov('m-score').textContent = '0 步';
 
-        // 计时器
-        const startDate = new Date('2025-09-05T02:51:00').getTime();
-        function updateTimer() {
-            const now = new Date().getTime();
-            const distance = now - startDate;
-            if (distance < 0) { return; }
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-            document.getElementById('days').innerText = days;
-            document.getElementById('hours').innerText = hours < 10 ? '0' + hours : hours;
-            document.getElementById('minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
-            document.getElementById('seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
-        }
-        setInterval(updateTimer, 1000);
-        updateTimer();
+  pairs.forEach((icon, i) => {
+    const card = document.createElement('div');
+    card.className = 'mc';
+    card.innerHTML = `<div class="mc-f">?</div><div class="mc-b">${icon}</div>`;
+    card.dataset.icon = icon;
 
-        // 滚动动画
-        const fadeElements = document.querySelectorAll('.fade-in-up, .fade-in-left, .fade-in-right');
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) entry.target.classList.add('visible');
-            });
-        }, { threshold: 0.1 }); 
-        fadeElements.forEach(el => observer.observe(el));
-        function checkScroll() {
-            fadeElements.forEach(el => {
-                const rect = el.getBoundingClientRect();
-                if(rect.top < window.innerHeight) el.classList.add('visible');
-            })
-        }
-    </script>
+    const flip = () => {
+      if (locked || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+      card.classList.add('flipped');
+      flipped.push(card);
+      if (flipped.length < 2) return;
+      locked = true; moves++;
+      ov('m-score').textContent = moves + ' 步';
+      const [a, b] = flipped;
+      if (a.dataset.icon === b.dataset.icon) {
+        a.classList.add('matched'); b.classList.add('matched');
+        matched += 2; flipped = []; locked = false;
+        if (matched === 16) setTimeout(() => gameOver('memory', moves + ' 步完成', true), 400);
+      } else {
+        setTimeout(() => {
+          a.classList.remove('flipped'); b.classList.remove('flipped');
+          flipped = []; locked = false;
+        }, 850);
+      }
+    };
+    card.addEventListener('click', flip);
+    card.addEventListener('touchstart', e => { e.preventDefault(); flip(); }, { passive: false });
+    grid.appendChild(card);
+  });
+}
+
+// ════════════════════════════════
+// 🚀 METEOR
+// ════════════════════════════════
+function startMeteor() {
+  hide('mt-ov');
+  const canvas = ov('mt-canvas');
+  const con = canvas.parentElement;
+  canvas.width = con.offsetWidth;
+  canvas.height = con.offsetHeight;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  let score = 0, lives = 3, inv = 0;
+  const ship = { x: W / 2, tx: W / 2, y: H - 65 };
+  let meteors = [], parts = [], lastSpawn = 0, spawnGap = 1400;
+  const stars = Array.from({length:55}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    r: Math.random()*1.4+.3, s: Math.random()*.5+.15
+  }));
+  setLives('mt', 3, '🚀');
+
+  function setTx(cx) {
+    const r = canvas.getBoundingClientRect();
+    ship.tx = cx - r.left;
+  }
+  canvas.addEventListener('touchmove',  e => { e.preventDefault(); setTx(e.touches[0].clientX); }, { passive:false });
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); setTx(e.touches[0].clientX); }, { passive:false });
+  canvas.addEventListener('mousemove',  e => setTx(e.clientX));
+
+  function spawnMeteor(ts) {
+    if (ts - lastSpawn < spawnGap) return;
+    lastSpawn = ts;
+    const r = 13 + Math.random() * 20;
+    const fast = Math.random() < 0.18;
+    meteors.push({
+      x: r + Math.random() * (W - r*2), y: -r,
+      r, speed: 2 + Math.random()*2 + score/600,
+      rot:0, rotS:(Math.random()-.5)*.08,
+      color: fast ? '#eb4d4b' : '#8a8a9a'
+    });
+    spawnGap = Math.max(480, 1400 - score*1.2);
+  }
+
+  function drawShip() {
+    const x = ship.x, y = ship.y;
+    ctx.save(); ctx.translate(x, y);
+    if (inv > 0 && Math.floor(Date.now()/90)%2) { ctx.globalAlpha=.35; }
+    // flame
+    ctx.fillStyle=`hsl(${Date.now()/5%50+10},100%,60%)`;
+    ctx.beginPath(); ctx.moveTo(-8,14); ctx.lineTo(0,14+8+Math.random()*10); ctx.lineTo(8,14); ctx.closePath(); ctx.fill();
+    // body
+    ctx.shadowBlur=16; ctx.shadowColor='#a29bfe';
+    ctx.fillStyle='#a29bfe';
+    ctx.beginPath(); ctx.moveTo(0,-22); ctx.lineTo(18,18); ctx.lineTo(0,10); ctx.lineTo(-18,18); ctx.closePath(); ctx.fill();
+    // cockpit
+    ctx.shadowColor='#00d2d3'; ctx.fillStyle='#00d2d3';
+    ctx.beginPath(); ctx.ellipse(0,-4,6,8,0,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  function drawMeteor(m) {
+    ctx.save(); ctx.translate(m.x, m.y); ctx.rotate(m.rot);
+    ctx.shadowBlur=10; ctx.shadowColor=m.color; ctx.fillStyle=m.color;
+    ctx.beginPath();
+    for (let i=0;i<8;i++) {
+      const a=i/8*Math.PI*2, r2=m.r*(0.78+Math.sin(i*1.3)*.22);
+      i===0?ctx.moveTo(Math.cos(a)*r2,Math.sin(a)*r2):ctx.lineTo(Math.cos(a)*r2,Math.sin(a)*r2);
+    }
+    ctx.closePath(); ctx.fill(); ctx.restore();
+  }
+
+  let last=0, running=true;
+  function frame(ts) {
+    if (!running) return;
+    const dt=Math.min(ts-last,32); last=ts;
+    ctx.fillStyle='#0a0a1a'; ctx.fillRect(0,0,W,H);
+    stars.forEach(s => {
+      s.y=(s.y+s.s)%H;
+      ctx.globalAlpha=.65; ctx.fillStyle='#fff';
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1;
+    });
+    spawnMeteor(ts);
+    score+=dt*.05;
+    ov('mt-score').textContent=Math.floor(score)+' 分';
+    ship.x+=(ship.tx-ship.x)*.14;
+    ship.x=Math.max(20,Math.min(W-20,ship.x));
+    if (inv>0) inv-=dt;
+    meteors=meteors.filter(m=>{
+      m.y+=m.speed; m.rot+=m.rotS;
+      if(m.y>H+m.r) return false;
+      if(inv<=0&&Math.hypot(ship.x-m.x,ship.y-m.y)<m.r+16){
+        lives--; inv=1800;
+        setLives('mt',lives,'🚀');
+        for(let i=0;i<14;i++) parts.push({x:ship.x,y:ship.y,vx:(Math.random()-.5)*9,vy:(Math.random()-.5)*9,life:1,r:Math.random()*3.5+1.5,c:'#eb4d4b'});
+        if(lives<=0){running=false;gameOver('meteor',Math.floor(score)+' 分');return false;}
+        return false;
+      }
+      drawMeteor(m);
+      return true;
+    });
+    parts=parts.filter(p=>{
+      p.x+=p.vx;p.y+=p.vy;p.life-=.04;p.vx*=.94;p.vy*=.94;
+      ctx.globalAlpha=p.life;ctx.fillStyle=p.c;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+      return p.life>0;
+    });
+    drawShip();
+    loops.meteor=requestAnimationFrame(frame);
+  }
+  loops.meteor=requestAnimationFrame(frame);
+}
+
+// ════════════════════════════════
+// ⚡ REACTION
+// ════════════════════════════════
+let rx={};
+function startReaction(){
+  hide('rx-ov');
+  ov('rx-results').innerHTML='';
+  rx={round:1,total:5,results:[],phase:'idle',t:null};
+  ov('rx-round').textContent='第 1 / 5 轮';
+  rxNext();
+}
+function rxNext(){
+  const circ=ov('rx-circle');
+  circ.style.cssText='background:rgba(249,202,36,.18);color:#f9ca24;box-shadow:0 0 60px #f9ca24;';
+  circ.querySelector('.icon').textContent='⏳';
+  circ.querySelector('.txt').textContent='准备好了吗…';
+  rx.phase='ready';
+  rx.t=setTimeout(()=>{
+    if(rx.phase!=='ready') return;
+    rx.phase='go'; rx.t0=Date.now();
+    circ.style.cssText='background:rgba(0,210,130,.22);color:#55efc4;box-shadow:0 0 80px #55efc4;';
+    circ.querySelector('.icon').textContent='👆';
+    circ.querySelector('.txt').textContent='点击！';
+  },1500+Math.random()*3000);
+}
+function rxTap(){
+  if(!rx.phase||rx.phase==='idle') return;
+  const circ=ov('rx-circle');
+  if(rx.phase==='ready'){
+    clearTimeout(rx.t);
+    rx.phase='early';
+    circ.style.cssText='background:rgba(235,77,75,.22);color:#eb4d4b;box-shadow:0 0 60px #eb4d4b;';
+    circ.querySelector('.icon').textContent='❌';
+    circ.querySelector('.txt').textContent='太早了！';
+    setTimeout(()=>{ if(rx.round<=rx.total) rxNext(); },1100);
+    return;
+  }
+  if(rx.phase==='go'){
+    const ms=Date.now()-rx.t0;
+    rx.phase='done'; rx.results.push(ms);
+    const [grade,color]=ms<200?['超神！','#f9ca24']:ms<280?['太快了！','#55efc4']:ms<380?['不错哦','#a29bfe']:ms<500?['一般般','#f0932b']:['加油！','#eb4d4b'];
+    circ.style.cssText=`background:${color}22;color:${color};box-shadow:0 0 70px ${color};`;
+    circ.querySelector('.icon').textContent='⚡';
+    circ.querySelector('.txt').textContent=`${ms}ms · ${grade}`;
+    // add bar
+    const w=Math.min(100,(ms/800)*100);
+    const bar=document.createElement('div');
+    bar.className='rbar';
+    bar.innerHTML=`<span style="width:14px;text-align:center">${rx.results.length}</span>
+      <div class="rbar-fill" style="width:${w}%;background:${color}"></div>
+      <span style="color:rgba(255,255,255,.7)">${ms}ms</span>`;
+    ov('rx-results').appendChild(bar);
+    if(rx.round<rx.total){
+      rx.round++; ov('rx-round').textContent=`第 ${rx.round} / ${rx.total} 轮`;
+      setTimeout(rxNext,1400);
+    } else {
+      setTimeout(rxFinal,1400);
+    }
+  }
+}
+function rxFinal(){
+  const avg=Math.round(rx.results.reduce((a,b)=>a+b,0)/rx.results.length);
+  const best=Math.min(...rx.results);
+  const grade=avg<200?'🏆 反应超人！':avg<280?'⚡ 闪电玩家！':avg<380?'👍 反应良好':avg<500?'😅 还需练习':'🐢 继续加油';
+  ov('rx-ov').innerHTML=`
+    <div class="big">🏁</div>
+    <h2>测试完成！</h2>
+    <div style="font-size:26px;margin:4px 0">${grade}</div>
+    <p>平均：<strong style="color:#f9ca24;font-size:20px">${avg}ms</strong><br>最佳：<strong style="color:#55efc4">${best}ms</strong></p>
+    <button class="btn" onclick="startReaction()">再测一次</button>
+    <button class="btn-ghost" onclick="close_('reaction')">返回菜单</button>
+  `;
+  show('rx-ov');
+  rx.phase=null;
+}
+
+// ════════════════════════════════
+// 🐹 MOLE
+// ════════════════════════════════
+let mo={};
+function startMole(){
+  hide('mo-ov');
+  const grid=ov('mole-grid');
+  grid.innerHTML='';
+  mo={score:0,timeLeft:30,running:true,holes:[]};
+  ov('mo-score').textContent='0 分';
+  ov('mo-timer').textContent='30s';
+
+  for(let i=0;i<9;i++){
+    const hole=document.createElement('div');
+    hole.className='hole';
+    const inner=document.createElement('span');
+    hole.appendChild(inner);
+    const tap=()=>hitMole(i);
+    hole.addEventListener('click',tap);
+    hole.addEventListener('touchstart',e=>{e.preventDefault();tap();},{passive:false});
+    grid.appendChild(hole);
+    mo.holes.push({el:hole,inner,active:'empty',t:null});
+  }
+
+  loops.moleTimer=setInterval(()=>{
+    if(!mo.running){clearInterval(loops.moleTimer);return;}
+    mo.timeLeft--;
+    ov('mo-timer').textContent=mo.timeLeft+'s';
+    if(mo.timeLeft<=0){
+      mo.running=false;
+      clearInterval(loops.moleTimer);
+      mo.holes.forEach(h=>{if(h.t)clearTimeout(h.t);h.inner.textContent='';});
+      setTimeout(()=>gameOver('mole',mo.score+' 分'),300);
+    }
+  },1000);
+
+  // Spawn 3 chains
+  for(let i=0;i<3;i++) setTimeout(()=>spawnMole(),i*350);
+}
+
+function spawnMole(){
+  if(!mo.running) return;
+  const empty=mo.holes.filter(h=>h.active==='empty');
+  if(!empty.length){setTimeout(spawnMole,300);return;}
+  const hole=empty[Math.floor(Math.random()*empty.length)];
+  const bomb=Math.random()<.16;
+  hole.active=bomb?'bomb':'mole';
+  hole.inner.textContent=bomb?'💣':(Math.random()>.3?'🐹':'🐭');
+  hole.el.style.background=bomb?'rgba(235,77,75,.18)':'rgba(85,239,196,.12)';
+  const dur=Math.max(550,1350-(30-mo.timeLeft)*28);
+  hole.t=setTimeout(()=>{
+    if(hole.active!=='empty'){hole.active='empty';hole.inner.textContent='';hole.el.style.background='';}
+    if(mo.running) spawnMole();
+  },dur);
+}
+
+function hitMole(i){
+  if(!mo.running) return;
+  const hole=mo.holes[i];
+  if(hole.active==='empty') return;
+  clearTimeout(hole.t);
+  const bomb=hole.active==='bomb';
+  hole.active='empty';
+  hole.inner.style.transform='scale(1.4)';
+  setTimeout(()=>{
+    hole.inner.style.transform='';
+    hole.inner.textContent='';
+    hole.el.style.background='';
+    if(mo.running) setTimeout(()=>spawnMole(),150);
+  },120);
+  if(bomb){ mo.score=Math.max(0,mo.score-5); floatPt(hole.el,'-5','#eb4d4b'); }
+  else    { mo.score+=10; floatPt(hole.el,'+10','#55efc4'); }
+  ov('mo-score').textContent=mo.score+' 分';
+}
+
+function floatPt(parent,text,color){
+  const d=document.createElement('div');
+  d.className='floatpt'; d.textContent=text; d.style.color=color;
+  parent.appendChild(d);
+  setTimeout(()=>d.remove(),780);
+}
+
+// Fix close_ overlay logic
+function close_(name) {
+  killLoops();
+  if(name==='mole'&&mo.running){mo.running=false;}
+  document.getElementById('game-'+name).classList.remove('active');
+  document.getElementById('menu').classList.add('active');
+  document.querySelectorAll('#game-'+name+' .ov').forEach(e=>e.classList.remove('gone'));
+  curGame=null;
+}
+</script>
 </body>
 </html>
