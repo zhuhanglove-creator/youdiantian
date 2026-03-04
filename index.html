@@ -1,787 +1,846 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>小游戏合集</title>
-<style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body {
-  background:#0d0d1f; color:#fff;
-  font-family:'Arial',sans-serif;
-  overflow:hidden; height:100vh; width:100vw;
-  user-select:none; touch-action:manipulation;
-}
-.screen { position:fixed; inset:0; display:none; flex-direction:column; }
-.screen.active { display:flex; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>佳佳驾到 | 洛丽塔的梦幻世界</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;700&family=ZCOOL+KuaiLe&family=Long+Cang&family=Liu+Jian+Mao+Cao&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* ── MENU ── */
-#menu {
-  background:linear-gradient(160deg,#0d0d1f 0%,#1a0a2e 50%,#0d1a2e 100%);
-  overflow-y:auto; padding-bottom:20px;
-}
-.menu-header { padding:44px 24px 16px; text-align:center; }
-.menu-title {
-  font-size:34px; font-weight:900;
-  background:linear-gradient(90deg,#f9ca24,#f0932b,#eb4d4b,#a29bfe);
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  margin-bottom:5px;
-}
-.menu-sub { font-size:13px; color:rgba(255,255,255,0.4); }
-.game-grid { display:grid; grid-template-columns:1fr 1fr; gap:13px; padding:10px 16px; }
-.game-card {
-  background:rgba(255,255,255,0.07);
-  border:1px solid rgba(255,255,255,0.12);
-  border-radius:20px; padding:20px 14px;
-  cursor:pointer; text-align:center;
-  transition:transform .15s;
-  position:relative; overflow:hidden;
-}
-.game-card:active { transform:scale(0.94); background:rgba(255,255,255,0.12); }
-.game-card .icon { font-size:42px; margin-bottom:8px; }
-.game-card .name { font-size:15px; font-weight:700; margin-bottom:3px; }
-.game-card .desc { font-size:11px; color:rgba(255,255,255,0.5); line-height:1.4; }
-.badge {
-  position:absolute; top:9px; right:9px;
-  background:var(--c); border-radius:8px;
-  padding:2px 7px; font-size:10px; font-weight:700; color:#0d0d1f;
-}
-.wide { grid-column:span 2; }
+        :root {
+            --main-pink: #ffdae0;
+            --dark-pink: #ff85a2;
+            --purple: #e6b3ff;
+            --gold: #ffd700;
+            --text-color: #5d4a4a;
+        }
 
-/* ── GAME SHELL ── */
-.game-screen { background:#0a0a1a; }
-.game-header {
-  display:flex; align-items:center; padding:11px 14px;
-  background:rgba(0,0,0,0.35); backdrop-filter:blur(10px);
-  gap:10px; flex-shrink:0; z-index:5;
-}
-.back-btn {
-  background:rgba(255,255,255,0.1); border:none; color:#fff;
-  width:34px; height:34px; border-radius:50%; font-size:17px;
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-}
-.back-btn:active { background:rgba(255,255,255,0.22); }
-.game-title { font-size:17px; font-weight:700; flex:1; }
-.tag {
-  font-size:13px; background:rgba(255,255,255,0.1);
-  padding:4px 12px; border-radius:16px;
-}
-.game-content { flex:1; position:relative; overflow:hidden; }
+        body {
+            font-family: 'ZCOOL KuaiLe', 'Ma Shan Zheng', 'Noto Sans SC', 'Microsoft YaHei', cursive, sans-serif;
+            background: linear-gradient(135deg, #ffd1dc 0%, #ffb3d9 25%, #e6b3ff 50%, #c9b3ff 75%, #ffd1dc 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: var(--text-color);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
 
-/* ── OVERLAY ── */
-.ov {
-  position:absolute; inset:0;
-  background:rgba(0,0,0,0.78); backdrop-filter:blur(8px);
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  z-index:20; gap:14px;
-}
-.ov.gone { display:none; }
-.ov .big { font-size:64px; }
-.ov h2 { font-size:32px; }
-.ov p { font-size:14px; color:rgba(255,255,255,0.6); text-align:center; padding:0 22px; line-height:1.6; }
-.ov .result { font-size:56px; font-weight:900;
-  background:linear-gradient(90deg,#f9ca24,#eb4d4b);
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.btn {
-  background:linear-gradient(135deg,#6c5ce7,#a29bfe);
-  border:none; color:#fff; padding:13px 38px;
-  border-radius:28px; font-size:16px; font-weight:700;
-  cursor:pointer; box-shadow:0 4px 20px rgba(108,92,231,.45);
-}
-.btn:active { transform:scale(0.97); }
-.btn-ghost { background:none; border:none; color:rgba(255,255,255,0.4); font-size:13px; cursor:pointer; }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
 
-/* ── LIVES ── */
-.lives { display:flex; gap:4px; }
-.life { font-size:17px; transition:opacity .3s; }
-.life.lost { opacity:0.2; filter:grayscale(1); }
+        /* 星星背景 */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
 
-/* ── MEMORY ── */
-#memory-grid {
-  display:grid; grid-template-columns:repeat(4,1fr);
-  gap:9px; padding:14px; height:100%; align-content:center;
-}
-.mc {
-  aspect-ratio:1; cursor:pointer;
-  transform-style:preserve-3d; transition:transform .32s;
-  position:relative;
-}
-.mc.flipped { transform:rotateY(180deg); }
-.mc-f,.mc-b {
-  position:absolute; inset:0; border-radius:13px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:26px; backface-visibility:hidden;
-}
-.mc-f { background:rgba(255,255,255,0.07); border:2px solid rgba(255,255,255,0.13); color:rgba(255,255,255,0.25); }
-.mc-b { background:rgba(108,92,231,0.28); border:2px solid rgba(108,92,231,0.55); transform:rotateY(180deg); }
-.mc.matched .mc-b { background:rgba(0,210,130,0.28); border-color:rgba(0,210,130,0.65); }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
 
-/* ── REACTION ── */
-#rx-box {
-  flex:1; display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  gap:18px; cursor:pointer; padding:20px;
-}
-#rx-circle {
-  width:170px; height:170px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  flex-direction:column; gap:6px; transition:all .25s;
-  box-shadow:0 0 60px currentColor;
-}
-#rx-circle .icon { font-size:38px; }
-#rx-circle .txt { font-size:14px; font-weight:700; }
-#rx-results { width:100%; max-width:320px; }
-.rbar { display:flex; align-items:center; gap:9px; margin-bottom:9px; font-size:13px; }
-.rbar-fill { height:18px; border-radius:9px; min-width:4px; transition:width .5s; }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
 
-/* ── MOLE ── */
-#mole-grid {
-  display:grid; grid-template-columns:repeat(3,1fr);
-  gap:12px; padding:18px; height:100%; align-content:center;
-}
-.hole {
-  aspect-ratio:1;
-  background:rgba(0,0,0,0.45);
-  border:2px solid rgba(255,255,255,0.1);
-  border-radius:20px;
-  display:flex; align-items:center; justify-content:center;
-  font-size:40px; cursor:pointer; position:relative; overflow:hidden;
-  transition:transform .1s;
-}
-.hole:active { transform:scale(0.92); }
-@keyframes floatPt {
-  0%   { transform:translate(-50%,-50%) scale(1); opacity:1; }
-  100% { transform:translate(-50%,-200%) scale(1.2); opacity:0; }
-}
-.floatpt {
-  position:absolute; top:50%; left:50%;
-  font-size:20px; font-weight:900;
-  pointer-events:none; z-index:5;
-  animation:floatPt .75s ease-out forwards;
-}
-</style>
+        /* 主容器 */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 头部 */
+        header {
+            text-align: center;
+            padding: 30px 0;
+            animation: fadeInDown 1.2s ease;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 8vw, 3.5rem);
+            font-family: 'Long Cang', 'ZCOOL KuaiLe', cursive;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff85a2, #ffd700, #ff85a2);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: rainbowText 3s ease infinite;
+            filter: drop-shadow(2px 2px 0px white) drop-shadow(0 0 20px rgba(255,133,162,0.5));
+            margin-bottom: 10px;
+        }
+
+        @keyframes rainbowText {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .subtitle {
+            font-style: italic;
+            letter-spacing: 2px;
+            animation: float 3s ease-in-out infinite;
+            font-size: clamp(0.9rem, 3vw, 1.1rem);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* 封面图片 */
+        .cover-container {
+            text-align: center;
+            margin: 20px 0;
+            animation: scaleIn 1s ease;
+        }
+
+        @keyframes scaleIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .cover-image {
+            width: 100%;
+            max-width: 350px;
+            border-radius: 30px;
+            box-shadow: 0 15px 40px rgba(255,133,162,0.4),
+                        0 0 0 8px rgba(255,255,255,0.3),
+                        0 0 0 16px rgba(255,182,217,0.2);
+            animation: coverPulse 3s ease-in-out infinite;
+            transition: transform 0.3s ease;
+        }
+
+        .cover-image:active {
+            transform: scale(0.95);
+        }
+
+        @keyframes coverPulse {
+            0%, 100% {
+                box-shadow: 0 15px 40px rgba(255,133,162,0.4),
+                            0 0 0 8px rgba(255,255,255,0.3),
+                            0 0 0 16px rgba(255,182,217,0.2);
+            }
+            50% {
+                box-shadow: 0 20px 50px rgba(255,133,162,0.6),
+                            0 0 0 8px rgba(255,255,255,0.5),
+                            0 0 0 16px rgba(255,182,217,0.4);
+            }
+        }
+
+        /* 音乐播放器 */
+        .player-container {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            padding: 25px;
+            border-radius: 40px;
+            box-shadow: 0 8px 32px rgba(255,133,162,0.3),
+                        inset 0 0 20px rgba(255,255,255,0.5);
+            margin: 30px 0;
+            border: 3px solid rgba(255,255,255,0.6);
+            animation: playerGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes playerGlow {
+            0%, 100% {
+                box-shadow: 0 8px 32px rgba(255,133,162,0.3),
+                            inset 0 0 20px rgba(255,255,255,0.5);
+            }
+            50% {
+                box-shadow: 0 8px 32px rgba(255,133,162,0.6),
+                            inset 0 0 30px rgba(255,255,255,0.7);
+            }
+        }
+
+        .player-title {
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        audio {
+            width: 100%;
+            border-radius: 20px;
+            outline: none;
+        }
+
+        /* 音频可视化 */
+        .visualizer {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 80px;
+            gap: 4px;
+            margin-top: 20px;
+            padding: 0 10px;
+        }
+
+        .bar {
+            width: 8px;
+            min-height: 10px;
+            background: linear-gradient(to top, #ff85a2, #ffd700);
+            border-radius: 10px;
+            animation: wave 1s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(255,133,162,0.5);
+        }
+
+        @keyframes wave {
+            0%, 100% { height: 20px; }
+            50% { height: 60px; }
+        }
+
+        .bar:nth-child(2) { animation-delay: 0.1s; }
+        .bar:nth-child(3) { animation-delay: 0.2s; }
+        .bar:nth-child(4) { animation-delay: 0.3s; }
+        .bar:nth-child(5) { animation-delay: 0.4s; }
+        .bar:nth-child(6) { animation-delay: 0.3s; }
+        .bar:nth-child(7) { animation-delay: 0.2s; }
+        .bar:nth-child(8) { animation-delay: 0.1s; }
+
+        /* 歌词区域 */
+        .lyrics-container {
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 30px 20px;
+            margin: 20px 0;
+            border: 2px solid rgba(255,255,255,0.5);
+            box-shadow: 0 8px 32px rgba(255,133,162,0.2);
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .lyrics-box {
+            height: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            text-align: center;
+            line-height: 2.5;
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            padding: 10px;
+            mask-image: linear-gradient(transparent, black 15%, black 85%, transparent);
+            -webkit-mask-image: linear-gradient(transparent, black 15%, black 85%, transparent);
+            scroll-behavior: smooth;
+        }
+
+        /* 自定义滚动条 */
+        .lyrics-box::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .lyrics-box::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+        }
+
+        .lyrics-box::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #ff85a2, #ffd700);
+            border-radius: 10px;
+        }
+
+        .lyric-line {
+            margin: 20px 0;
+            transition: all 0.5s ease;
+            opacity: 0.5;
+            transform: scale(0.95);
+            cursor: pointer;
+        }
+
+        .lyric-line:hover {
+            opacity: 0.8;
+            transform: scale(1);
+        }
+
+        .lyric-line.active {
+            opacity: 1;
+            color: var(--dark-pink);
+            font-weight: bold;
+            transform: scale(1.1);
+            text-shadow: 0 0 10px rgba(255,133,162,0.5);
+            animation: lyricPop 0.5s ease;
+        }
+
+        @keyframes lyricPop {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1.1); }
+        }
+
+        /* 飘落装饰 */
+        .floating-deco {
+            position: fixed;
+            z-index: 999;
+            pointer-events: none;
+            font-size: 30px;
+            animation: fall 5s linear;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* 触摸涟漪效果 */
+        .ripple {
+            position: fixed;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,133,162,0.6), transparent);
+            pointer-events: none;
+            animation: rippleEffect 1s ease-out;
+            z-index: 9999;
+        }
+
+        @keyframes rippleEffect {
+            from {
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            to {
+                width: 200px;
+                height: 200px;
+                opacity: 0;
+            }
+        }
+
+        /* 页脚 */
+        footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 0.85rem;
+            color: rgba(93,74,74,0.6);
+        }
+
+        /* 加载提示 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ffd1dc 0%, #ffb3d9 25%, #e6b3ff 50%, #c9b3ff 75%, #ffd1dc 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .loading-spinner::before,
+        .loading-spinner::after {
+            content: '🎀';
+            position: absolute;
+            font-size: 40px;
+            animation: spin 2s linear infinite;
+        }
+
+        .loading-spinner::after {
+            animation-delay: 1s;
+            opacity: 0.5;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .loading-text {
+            font-size: 1.5rem;
+            color: var(--dark-pink);
+            font-weight: bold;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.05); }
+        }
+
+        .loading-dots {
+            display: inline-block;
+            width: 60px;
+            text-align: left;
+        }
+
+        .loading-dots::after {
+            content: '...';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        /* 手机适配 */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+
+            .cover-image {
+                max-width: 280px;
+            }
+
+            .player-container {
+                padding: 20px 15px;
+            }
+
+            .lyrics-box {
+                height: 250px;
+                font-size: 1rem;
+            }
+
+            .visualizer {
+                height: 60px;
+            }
+
+            .bar {
+                width: 6px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<!-- ===== MENU ===== -->
-<div id="menu" class="screen active">
-  <div class="menu-header">
-    <div class="menu-title">🎮 小游戏合集</div>
-    <div class="menu-sub">5款手机小游戏，随时随地开玩</div>
-  </div>
-  <div class="game-grid">
-    <div class="game-card" onclick="open_('balloon')">
-      <div class="badge" style="--c:#f9ca24">经典</div>
-      <div class="icon">🎈</div>
-      <div class="name">打气球</div>
-      <div class="desc">快速点击，别让气球飞走！</div>
+    <!-- 加载提示 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">
+            加载中<span class="loading-dots"></span>
+        </div>
     </div>
-    <div class="game-card" onclick="open_('memory')">
-      <div class="badge" style="--c:#a29bfe">益智</div>
-      <div class="icon">🃏</div>
-      <div class="name">记忆翻牌</div>
-      <div class="desc">找到所有匹配的对子！</div>
+
+    <!-- 星星背景 -->
+    <div class="stars" id="stars"></div>
+
+    <div class="container">
+        <header>
+            <h1>佳佳驾到 🎀</h1>
+            <p class="subtitle">"谁家的小公举迷了路？"</p>
+        </header>
+
+        <!-- 封面图片 -->
+        <div class="cover-container">
+            <img src="cover.jpg" alt="洛丽塔封面" class="cover-image" id="coverImage">
+        </div>
+
+        <!-- 音乐播放器 -->
+        <div class="player-container">
+            <p class="player-title">🎵 正在播放：佳佳爱穿洛丽塔</p>
+            <audio id="music-player" controls>
+                <source src="your-song.mp3" type="audio/mpeg">
+                您的浏览器不支持音频播放。
+            </audio>
+
+            <!-- 音频可视化 -->
+            <div class="visualizer" id="visualizer">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+
+        <!-- 歌词展示 -->
+        <div class="lyrics-container">
+            <div class="lyrics-box" id="lyrics-box">
+                <p class="lyric-line">加载歌词中...</p>
+            </div>
+        </div>
+
+        <footer>
+            © 2026 佳佳的梦幻次元 | Made with Love & Lace ✨
+        </footer>
     </div>
-    <div class="game-card" onclick="open_('meteor')">
-      <div class="badge" style="--c:#eb4d4b">动作</div>
-      <div class="icon">🚀</div>
-      <div class="name">躲陨石</div>
-      <div class="desc">拖动飞船，躲避石块！</div>
-    </div>
-    <div class="game-card" onclick="open_('reaction')">
-      <div class="badge" style="--c:#00d2d3">挑战</div>
-      <div class="icon">⚡</div>
-      <div class="name">反应测试</div>
-      <div class="desc">测测你的反应速度！</div>
-    </div>
-    <div class="game-card wide" onclick="open_('mole')">
-      <div class="badge" style="--c:#55efc4">热门</div>
-      <div class="icon">🐹</div>
-      <div class="name">打地鼠</div>
-      <div class="desc">30秒内打到尽可能多的地鼠，避开炸弹！</div>
-    </div>
-  </div>
-</div>
 
-<!-- ===== BALLOON ===== -->
-<div id="game-balloon" class="screen game-screen">
-  <div class="game-header">
-    <button class="back-btn" onclick="close_('balloon')">←</button>
-    <span class="game-title">🎈 打气球</span>
-    <span class="tag" id="b-score">0 分</span>
-    <div class="lives" id="b-lives"></div>
-  </div>
-  <div class="game-content">
-    <canvas id="b-canvas"></canvas>
-    <div class="ov" id="b-ov">
-      <div class="big">🎈</div>
-      <h2>打气球</h2>
-      <p>快速点击气球得分<br>失去 3 个气球游戏结束</p>
-      <button class="btn" onclick="startBalloon()">开始</button>
-    </div>
-  </div>
-</div>
+    <script>
+        // 等待 DOM 加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            // 页面加载完成后隐藏加载提示
+            const loadingOverlay = document.getElementById('loadingOverlay');
 
-<!-- ===== MEMORY ===== -->
-<div id="game-memory" class="screen game-screen">
-  <div class="game-header">
-    <button class="back-btn" onclick="close_('memory')">←</button>
-    <span class="game-title">🃏 记忆翻牌</span>
-    <span class="tag" id="m-score">0 步</span>
-  </div>
-  <div class="game-content">
-    <div id="memory-grid"></div>
-    <div class="ov" id="m-ov">
-      <div class="big">🃏</div>
-      <h2>记忆翻牌</h2>
-      <p>翻开两张牌找到相同对子<br>用最少的步数完成挑战！</p>
-      <button class="btn" onclick="startMemory()">开始</button>
-    </div>
-  </div>
-</div>
+            // 模拟加载时间，确保资源加载完成
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    loadingOverlay.classList.add('hidden');
+                    setTimeout(() => {
+                        loadingOverlay.style.display = 'none';
+                    }, 500);
+                }, 800);
+            });
 
-<!-- ===== METEOR ===== -->
-<div id="game-meteor" class="screen game-screen">
-  <div class="game-header">
-    <button class="back-btn" onclick="close_('meteor')">←</button>
-    <span class="game-title">🚀 躲陨石</span>
-    <span class="tag" id="mt-score">0 分</span>
-    <div class="lives" id="mt-lives"></div>
-  </div>
-  <div class="game-content">
-    <canvas id="mt-canvas"></canvas>
-    <div class="ov" id="mt-ov">
-      <div class="big">🚀</div>
-      <h2>躲陨石</h2>
-      <p>左右拖动控制飞船<br>生存越久分数越高！</p>
-      <button class="btn" onclick="startMeteor()">开始</button>
-    </div>
-  </div>
-</div>
+            // 获取元素
+            const lyricsBox = document.getElementById('lyrics-box');
+            const audio = document.getElementById('music-player');
+            const visualizer = document.getElementById('visualizer');
+            const bars = visualizer.querySelectorAll('.bar');
+            const coverImage = document.getElementById('coverImage');
 
-<!-- ===== REACTION ===== -->
-<div id="game-reaction" class="screen game-screen">
-  <div class="game-header">
-    <button class="back-btn" onclick="close_('reaction')">←</button>
-    <span class="game-title">⚡ 反应测试</span>
-    <span class="tag" id="rx-round">第 1 / 5 轮</span>
-  </div>
-  <div class="game-content" style="display:flex;flex-direction:column;">
-    <div class="ov" id="rx-ov">
-      <div class="big">⚡</div>
-      <h2>反应测试</h2>
-      <p>变绿后立刻点击！<br>共 5 轮，看看你的平均反应时间</p>
-      <button class="btn" onclick="startReaction()">开始测试</button>
-    </div>
-    <div id="rx-box" onclick="rxTap()">
-      <div id="rx-circle">
-        <div class="icon">⏳</div>
-        <div class="txt">等待开始</div>
-      </div>
-      <div id="rx-results"></div>
-    </div>
-  </div>
-</div>
+            // ========== 在这里粘贴你的 LRC 歌词 ==========
+            const lrcContent = `[00:00.00]Check check…
+[00:03.67]谁家的小公举迷了路？(hey)
+[00:10.69]她推开大门 像是掉进爱丽丝的洞
+[00:13.56]满屋的蓬蓬裙 简直是她的美梦
+[00:16.36]每一件小裙 都有个诗意的名
+[00:18.99]为了抢个限量 说戒零食也行
+[00:22.82]穿上撑裙 走路像个不倒翁
+[00:25.29]左边摇 右边晃 自己乐得起风
+[00:28.09]脑回路 偶尔短线 跑偏方向
+[00:30.64]可一套好坐标 就在那衣柜中央
+[00:34.15]她给娃娃试衣 量身配对颜色
+[00:36.78]口袋里塞着夹子 准备随时改折
+[00:39.65]有人说她怪 她只当听到夸奖
+[00:42.29]因为穿上洛丽塔 她就是今天主场 (woah)
+[00:46.68]佳佳爱穿洛丽塔 像朵盛开的花
+[00:48.59]就算跌跌撞撞 也要优雅地回家
+[00:52.10]佳佳就是个小傻 萌得不像话
+[00:53.94]在这个疯狂世界 保持最真的童话
+[00:56.41]佳佳爱穿洛丽塔 心事缝进蕾花
+[00:59.92]口袋塞着小糖 也是给明天的答
+[01:03.43]佳佳就是个小傻 笑点低得可怕
+[01:05.43]可她一转个身啊 整条街都柔化
+[01:08.06]她说那是优雅 克制 还有那份精致
+[01:10.69]我看她发呆时 动作确实有点迟
+[01:13.48]手里的蕾丝洋伞 不是为了遮阳
+[01:16.52]只是合影举个手 做个帅气登场
+[01:19.15]你笑她傻吗 也许是太认真
+[01:21.70]把每一条花边 都当信仰来拯救早晨
+[01:24.89]活在自己的次元 谁也别想代替
+[01:27.69]她用缎带写日记 记今天又多勇气
+[01:30.64]哪怕袜带系反 蝴蝶结歪一旁
+[01:33.51]自拍照传上去 仍然一排夸奖
+[01:36.46]她还是那个佳佳 眼睛亮得固执
+[01:39.10]在灰色的地铁里 发出粉色的标志 (oh yeah)
+[01:42.61]不管别人怎么看 风格由她决定
+[01:45.64]洛丽塔的裙摆 藏着少女的心境
+[01:47.87]傻得可爱 傻得坦率 像刚拆封的光
+[01:50.35]每一层薄纱底下 都有不服输的倔强
+[01:53.86]佳佳爱穿洛丽塔 像朵盛开的花
+[01:56.33]就算跌跌撞撞 也要优雅地回家
+[02:00.00]佳佳就是个小傻 萌得不像话
+[02:01.75]在这个疯狂世界 保持最真的童话
+[02:05.58]佳佳爱穿洛丽塔 转一圈就开挂
+[02:07.66]人群再吵再乱 她自成一幅画
+[02:10.05]佳佳就是个小傻 我却说她伟大
+[02:13.00]因为她敢当自己 这就是最甜的回答`;
+            // ========== 歌词粘贴区域结束 ==========
 
-<!-- ===== MOLE ===== -->
-<div id="game-mole" class="screen game-screen">
-  <div class="game-header">
-    <button class="back-btn" onclick="close_('mole')">←</button>
-    <span class="game-title">🐹 打地鼠</span>
-    <span class="tag" id="mo-score">0 分</span>
-    <span class="tag" id="mo-timer" style="background:rgba(235,77,75,.2)">30s</span>
-  </div>
-  <div class="game-content">
-    <div id="mole-grid"></div>
-    <div class="ov" id="mo-ov">
-      <div class="big">🐹</div>
-      <h2>打地鼠</h2>
-      <p>30秒内打到尽可能多的地鼠！<br>打到炸弹 💣 会扣 5 分</p>
-      <button class="btn" onclick="startMole()">开始</button>
-    </div>
-  </div>
-</div>
+            // 解析 LRC 格式
+            function parseLRC(lrcText) {
+                const lines = lrcText.split('\n');
+                const lyrics = [];
+                lines.forEach(line => {
+                    const match = line.match(/\[(\d{2}):(\d{2}\.\d{2})\](.*)/);
+                    if (match) {
+                        const minutes = parseInt(match[1]);
+                        const seconds = parseFloat(match[2]);
+                        const time = minutes * 60 + seconds;
+                        const text = match[3].trim();
+                        if (text) {
+                            lyrics.push({ time, text });
+                        }
+                    }
+                });
+                return lyrics.sort((a, b) => a.time - b.time);
+            }
 
-<script>
-// ════════════════════════════════
-// SCREEN MANAGEMENT
-// ════════════════════════════════
-const loops = {};
-let curGame = null;
+            // 显示歌词
+            function displayLyrics(lyricsData) {
+                lyricsBox.innerHTML = '';
+                lyricsData.forEach((lyric, index) => {
+                    const p = document.createElement('p');
+                    p.className = 'lyric-line';
+                    p.textContent = lyric.text;
+                    p.dataset.index = index;
+                    p.dataset.time = lyric.time;
+                    lyricsBox.appendChild(p);
+                });
+            }
 
-function open_(name) {
-  document.getElementById('menu').classList.remove('active');
-  document.getElementById('game-' + name).classList.add('active');
-  curGame = name;
-}
+            // 初始化歌词
+            const lyricsData = parseLRC(lrcContent);
+            displayLyrics(lyricsData);
 
-function close_(name) {
-  killLoops();
-  document.getElementById('game-' + name).classList.remove('active');
-  document.getElementById('menu').classList.add('active');
-  const ov = document.getElementById(name[0] === 'm' ? (name === 'meteor' ? 'mt' : name === 'memory' ? 'm' : 'mo') : name[0] + '') + '-ov';
-  // Restore overlays by showing them
-  document.querySelectorAll('#game-' + name + ' .ov').forEach(el => el.classList.remove('gone'));
-  curGame = null;
-}
+            // 创建星星背景
+            function createStars() {
+                const starsContainer = document.getElementById('stars');
+                for (let i = 0; i < 50; i++) {
+                    const star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.width = Math.random() * 3 + 2 + 'px';
+                    star.style.height = star.style.width;
+                    star.style.left = Math.random() * 100 + '%';
+                    star.style.top = Math.random() * 100 + '%';
+                    star.style.animationDelay = Math.random() * 3 + 's';
+                    starsContainer.appendChild(star);
+                }
+            }
+            createStars();
 
-function killLoops() {
-  Object.values(loops).forEach(id => { cancelAnimationFrame(id); clearInterval(id); clearTimeout(id); });
-  for (const k in loops) delete loops[k];
-}
+            // 飘落装饰（蝴蝶结、爱心、星星）
+            const decoEmojis = ['🎀', '💖', '✨', '🌸', '👑', '🦋', '💝', '🌟'];
+            function createFloatingDeco() {
+                const deco = document.createElement('div');
+                deco.className = 'floating-deco';
+                deco.textContent = decoEmojis[Math.floor(Math.random() * decoEmojis.length)];
+                deco.style.left = Math.random() * 100 + 'vw';
+                deco.style.top = '-50px';
+                document.body.appendChild(deco);
 
-function ov(id)      { return document.getElementById(id); }
-function hide(id)    { ov(id).classList.add('gone'); }
-function show(id)    { ov(id).classList.remove('gone'); }
-function setLives(prefix, n, emoji) {
-  const el = document.getElementById(prefix + '-lives');
-  el.innerHTML = [0,1,2].map(i => `<span class="life${i>=n?' lost':''}">${emoji}</span>`).join('');
-}
+                setTimeout(() => deco.remove(), 5000);
+            }
+            setInterval(createFloatingDeco, 1500);
 
-function gameOver(prefix, scoreVal, win = false) {
-  const ovId = {balloon:'b-ov', memory:'m-ov', meteor:'mt-ov', mole:'mo-ov'}[prefix];
-  const restartFn = {balloon:'startBalloon()', memory:'startMemory()', meteor:'startMeteor()', mole:'startMole()'}[prefix];
-  ov(ovId).innerHTML = `
-    <div class="big">${win ? '🎉' : '💀'}</div>
-    <h2>${win ? '恭喜完成！' : '游戏结束'}</h2>
-    <div class="result">${scoreVal}</div>
-    <button class="btn" onclick="${restartFn}">再玩一次</button>
-    <button class="btn-ghost" onclick="close_('${prefix}')">返回菜单</button>
-  `;
-  show(ovId);
-}
+            // 触摸/点击涟漪效果
+            function createRipple(e) {
+                const ripple = document.createElement('div');
+                ripple.className = 'ripple';
+                ripple.style.left = (e.clientX || e.touches[0].clientX) - 100 + 'px';
+                ripple.style.top = (e.clientY || e.touches[0].clientY) - 100 + 'px';
+                document.body.appendChild(ripple);
 
-// ════════════════════════════════
-// 🎈 BALLOON
-// ════════════════════════════════
-function startBalloon() {
-  hide('b-ov');
-  const canvas = ov('b-canvas');
-  const con = canvas.parentElement;
-  canvas.width = con.offsetWidth;
-  canvas.height = con.offsetHeight;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
-  const COLORS = ['#f9ca24','#f0932b','#eb4d4b','#a29bfe','#55efc4','#fd79a8','#00d2d3'];
+                setTimeout(() => ripple.remove(), 1000);
+            }
+            document.addEventListener('click', createRipple);
+            document.addEventListener('touchstart', createRipple);
 
-  let score = 0, lives = 3, balloons = [], lastSpawn = 0, spawnGap = 1100, level = 1;
-  setLives('b', 3, '❤️');
+            // 音频播放时的动画效果
+            audio.addEventListener('play', () => {
+                bars.forEach(bar => {
+                    bar.style.animationPlayState = 'running';
+                });
+                coverImage.style.animation = 'coverPulse 3s ease-in-out infinite, spin 20s linear infinite';
+            });
 
-  function spawn(now) {
-    if (now - lastSpawn < spawnGap) return;
-    lastSpawn = now;
-    const r = 24 + Math.random() * 14;
-    balloons.push({
-      x: r + Math.random() * (W - r * 2),
-      y: H + r * 2,
-      r, speed: 1.4 + Math.random() * 1.4 + level * 0.25,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      wobble: Math.random() * Math.PI * 2,
-      pts: r < 30 ? 30 : r < 36 ? 20 : 10,
-      popped: false, popT: 0
-    });
-  }
+            audio.addEventListener('pause', () => {
+                bars.forEach(bar => {
+                    bar.style.animationPlayState = 'paused';
+                });
+                coverImage.style.animation = 'coverPulse 3s ease-in-out infinite';
+            });
 
-  function drawBalloon(b) {
-    const wx = b.x + Math.sin(b.wobble) * 7;
-    ctx.save();
-    if (b.popped) {
-      ctx.globalAlpha = b.popT;
-      ctx.strokeStyle = b.color; ctx.lineWidth = 2.5;
-      for (let i = 0; i < 8; i++) {
-        const a = i / 8 * Math.PI * 2, len = b.r * (1.4 - b.popT);
-        ctx.beginPath(); ctx.moveTo(wx, b.y);
-        ctx.lineTo(wx + Math.cos(a) * len, b.y + Math.sin(a) * len); ctx.stroke();
-      }
-    } else {
-      ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(wx, b.y + b.r); ctx.lineTo(wx, b.y + b.r + 22); ctx.stroke();
-      ctx.shadowBlur = 18; ctx.shadowColor = b.color;
-      ctx.fillStyle = b.color;
-      ctx.beginPath(); ctx.arc(wx, b.y, b.r, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,0.28)';
-      ctx.beginPath(); ctx.ellipse(wx - b.r*.28, b.y - b.r*.28, b.r*.28, b.r*.18, -0.5, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = 'rgba(0,0,0,0.5)';
-      ctx.font = `bold ${Math.max(9, b.r * 0.48)}px Arial`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(b.pts, wx, b.y);
-    }
-    ctx.restore();
-  }
+            // 旋转动画
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
 
-  function tap(clientX, clientY) {
-    const rect = canvas.getBoundingClientRect();
-    const x = clientX - rect.left, y = clientY - rect.top;
-    for (let i = balloons.length - 1; i >= 0; i--) {
-      const b = balloons[i];
-      if (!b.popped && Math.hypot(x - b.x, y - b.y) < b.r + 8) {
-        b.popped = true; b.popT = 1;
-        score += b.pts;
-        ov('b-score').textContent = score + ' 分';
-        break;
-      }
-    }
-  }
+            // 歌词同步
+            let currentLyricIndex = -1;
 
-  canvas.addEventListener('touchstart', e => {
-    e.preventDefault();
-    for (const t of e.changedTouches) tap(t.clientX, t.clientY);
-  }, { passive: false });
-  canvas.addEventListener('click', e => tap(e.clientX, e.clientY));
+            audio.addEventListener('timeupdate', () => {
+                const currentTime = audio.currentTime;
 
-  let running = true;
-  function frame(ts) {
-    if (!running) return;
-    ctx.clearRect(0, 0, W, H);
-    spawn(ts);
-    level = 1 + Math.floor(score / 80);
-    spawnGap = Math.max(450, 1100 - level * 70);
-    balloons = balloons.filter(b => {
-      b.wobble += 0.038;
-      if (!b.popped) {
-        b.y -= b.speed;
-        if (b.y + b.r < 0) {
-          lives--;
-          setLives('b', lives, '❤️');
-          if (lives <= 0) { running = false; gameOver('balloon', score + ' 分'); return false; }
-          return false;
-        }
-      } else {
-        b.popT -= 0.07;
-        if (b.popT <= 0) return false;
-      }
-      drawBalloon(b);
-      return true;
-    });
-    loops.balloon = requestAnimationFrame(frame);
-  }
-  loops.balloon = requestAnimationFrame(frame);
-}
+                // 找到当前应该显示的歌词
+                for (let i = lyricsData.length - 1; i >= 0; i--) {
+                    if (currentTime >= lyricsData[i].time) {
+                        if (i !== currentLyricIndex) {
+                            currentLyricIndex = i;
+                            updateLyricDisplay(i);
+                        }
+                        break;
+                    }
+                }
+            });
 
-// ════════════════════════════════
-// 🃏 MEMORY
-// ════════════════════════════════
-const MEM_ICONS = ['🐶','🐱','🐭','🐹','🦊','🐻','🐼','🐨'];
+            function updateLyricDisplay(index) {
+                const lyricLines = lyricsBox.querySelectorAll('.lyric-line');
+                lyricLines.forEach(line => line.classList.remove('active'));
 
-function startMemory() {
-  hide('m-ov');
-  const grid = ov('memory-grid');
-  grid.innerHTML = '';
-  const pairs = [...MEM_ICONS, ...MEM_ICONS].sort(() => Math.random() - .5);
-  let flipped = [], matched = 0, moves = 0, locked = false;
-  ov('m-score').textContent = '0 步';
+                if (lyricLines[index]) {
+                    lyricLines[index].classList.add('active');
+                    lyricLines[index].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+            }
 
-  pairs.forEach((icon, i) => {
-    const card = document.createElement('div');
-    card.className = 'mc';
-    card.innerHTML = `<div class="mc-f">?</div><div class="mc-b">${icon}</div>`;
-    card.dataset.icon = icon;
+            // 点击歌词跳转到对应时间
+            lyricsBox.addEventListener('click', (e) => {
+                if (e.target.classList.contains('lyric-line')) {
+                    const time = parseFloat(e.target.dataset.time);
+                    if (!isNaN(time)) {
+                        audio.currentTime = time;
+                    }
+                }
+            });
 
-    const flip = () => {
-      if (locked || card.classList.contains('flipped') || card.classList.contains('matched')) return;
-      card.classList.add('flipped');
-      flipped.push(card);
-      if (flipped.length < 2) return;
-      locked = true; moves++;
-      ov('m-score').textContent = moves + ' 步';
-      const [a, b] = flipped;
-      if (a.dataset.icon === b.dataset.icon) {
-        a.classList.add('matched'); b.classList.add('matched');
-        matched += 2; flipped = []; locked = false;
-        if (matched === 16) setTimeout(() => gameOver('memory', moves + ' 步完成', true), 400);
-      } else {
-        setTimeout(() => {
-          a.classList.remove('flipped'); b.classList.remove('flipped');
-          flipped = []; locked = false;
-        }, 850);
-      }
-    };
-    card.addEventListener('click', flip);
-    card.addEventListener('touchstart', e => { e.preventDefault(); flip(); }, { passive: false });
-    grid.appendChild(card);
-  });
-}
+            // 滑动特效 - 下拉刷新效果
+            let startY = 0;
+            let isPulling = false;
 
-// ════════════════════════════════
-// 🚀 METEOR
-// ════════════════════════════════
-function startMeteor() {
-  hide('mt-ov');
-  const canvas = ov('mt-canvas');
-  const con = canvas.parentElement;
-  canvas.width = con.offsetWidth;
-  canvas.height = con.offsetHeight;
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
+            lyricsBox.addEventListener('touchstart', (e) => {
+                if (lyricsBox.scrollTop === 0) {
+                    startY = e.touches[0].clientY;
+                    isPulling = true;
+                }
+            });
 
-  let score = 0, lives = 3, inv = 0;
-  const ship = { x: W / 2, tx: W / 2, y: H - 65 };
-  let meteors = [], parts = [], lastSpawn = 0, spawnGap = 1400;
-  const stars = Array.from({length:55}, () => ({
-    x: Math.random()*W, y: Math.random()*H,
-    r: Math.random()*1.4+.3, s: Math.random()*.5+.15
-  }));
-  setLives('mt', 3, '🚀');
+            lyricsBox.addEventListener('touchmove', (e) => {
+                if (isPulling) {
+                    const currentY = e.touches[0].clientY;
+                    const diff = currentY - startY;
+                    if (diff > 0 && diff < 100) {
+                        lyricsBox.style.transform = `translateY(${diff * 0.5}px)`;
+                        lyricsBox.style.opacity = 1 - (diff / 200);
+                    }
+                }
+            });
 
-  function setTx(cx) {
-    const r = canvas.getBoundingClientRect();
-    ship.tx = cx - r.left;
-  }
-  canvas.addEventListener('touchmove',  e => { e.preventDefault(); setTx(e.touches[0].clientX); }, { passive:false });
-  canvas.addEventListener('touchstart', e => { e.preventDefault(); setTx(e.touches[0].clientX); }, { passive:false });
-  canvas.addEventListener('mousemove',  e => setTx(e.clientX));
+            lyricsBox.addEventListener('touchend', () => {
+                if (isPulling) {
+                    lyricsBox.style.transform = 'translateY(0)';
+                    lyricsBox.style.opacity = '1';
+                    lyricsBox.style.transition = 'all 0.3s ease';
+                    setTimeout(() => {
+                        lyricsBox.style.transition = '';
+                    }, 300);
+                    isPulling = false;
+                }
+            });
 
-  function spawnMeteor(ts) {
-    if (ts - lastSpawn < spawnGap) return;
-    lastSpawn = ts;
-    const r = 13 + Math.random() * 20;
-    const fast = Math.random() < 0.18;
-    meteors.push({
-      x: r + Math.random() * (W - r*2), y: -r,
-      r, speed: 2 + Math.random()*2 + score/600,
-      rot:0, rotS:(Math.random()-.5)*.08,
-      color: fast ? '#eb4d4b' : '#8a8a9a'
-    });
-    spawnGap = Math.max(480, 1400 - score*1.2);
-  }
+            // 页面下滑自动播放
+            let hasAutoPlayed = false;
+            let scrollStartY = 0;
 
-  function drawShip() {
-    const x = ship.x, y = ship.y;
-    ctx.save(); ctx.translate(x, y);
-    if (inv > 0 && Math.floor(Date.now()/90)%2) { ctx.globalAlpha=.35; }
-    // flame
-    ctx.fillStyle=`hsl(${Date.now()/5%50+10},100%,60%)`;
-    ctx.beginPath(); ctx.moveTo(-8,14); ctx.lineTo(0,14+8+Math.random()*10); ctx.lineTo(8,14); ctx.closePath(); ctx.fill();
-    // body
-    ctx.shadowBlur=16; ctx.shadowColor='#a29bfe';
-    ctx.fillStyle='#a29bfe';
-    ctx.beginPath(); ctx.moveTo(0,-22); ctx.lineTo(18,18); ctx.lineTo(0,10); ctx.lineTo(-18,18); ctx.closePath(); ctx.fill();
-    // cockpit
-    ctx.shadowColor='#00d2d3'; ctx.fillStyle='#00d2d3';
-    ctx.beginPath(); ctx.ellipse(0,-4,6,8,0,0,Math.PI*2); ctx.fill();
-    ctx.restore();
-  }
+            window.addEventListener('touchstart', (e) => {
+                scrollStartY = e.touches[0].clientY;
+            });
 
-  function drawMeteor(m) {
-    ctx.save(); ctx.translate(m.x, m.y); ctx.rotate(m.rot);
-    ctx.shadowBlur=10; ctx.shadowColor=m.color; ctx.fillStyle=m.color;
-    ctx.beginPath();
-    for (let i=0;i<8;i++) {
-      const a=i/8*Math.PI*2, r2=m.r*(0.78+Math.sin(i*1.3)*.22);
-      i===0?ctx.moveTo(Math.cos(a)*r2,Math.sin(a)*r2):ctx.lineTo(Math.cos(a)*r2,Math.sin(a)*r2);
-    }
-    ctx.closePath(); ctx.fill(); ctx.restore();
-  }
+            window.addEventListener('touchmove', (e) => {
+                if (!hasAutoPlayed && audio.paused) {
+                    const scrollCurrentY = e.touches[0].clientY;
+                    const scrollDiff = scrollStartY - scrollCurrentY;
 
-  let last=0, running=true;
-  function frame(ts) {
-    if (!running) return;
-    const dt=Math.min(ts-last,32); last=ts;
-    ctx.fillStyle='#0a0a1a'; ctx.fillRect(0,0,W,H);
-    stars.forEach(s => {
-      s.y=(s.y+s.s)%H;
-      ctx.globalAlpha=.65; ctx.fillStyle='#fff';
-      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); ctx.globalAlpha=1;
-    });
-    spawnMeteor(ts);
-    score+=dt*.05;
-    ov('mt-score').textContent=Math.floor(score)+' 分';
-    ship.x+=(ship.tx-ship.x)*.14;
-    ship.x=Math.max(20,Math.min(W-20,ship.x));
-    if (inv>0) inv-=dt;
-    meteors=meteors.filter(m=>{
-      m.y+=m.speed; m.rot+=m.rotS;
-      if(m.y>H+m.r) return false;
-      if(inv<=0&&Math.hypot(ship.x-m.x,ship.y-m.y)<m.r+16){
-        lives--; inv=1800;
-        setLives('mt',lives,'🚀');
-        for(let i=0;i<14;i++) parts.push({x:ship.x,y:ship.y,vx:(Math.random()-.5)*9,vy:(Math.random()-.5)*9,life:1,r:Math.random()*3.5+1.5,c:'#eb4d4b'});
-        if(lives<=0){running=false;gameOver('meteor',Math.floor(score)+' 分');return false;}
-        return false;
-      }
-      drawMeteor(m);
-      return true;
-    });
-    parts=parts.filter(p=>{
-      p.x+=p.vx;p.y+=p.vy;p.life-=.04;p.vx*=.94;p.vy*=.94;
-      ctx.globalAlpha=p.life;ctx.fillStyle=p.c;
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
-      return p.life>0;
-    });
-    drawShip();
-    loops.meteor=requestAnimationFrame(frame);
-  }
-  loops.meteor=requestAnimationFrame(frame);
-}
+                    // 向下滑动超过 50px 时自动播放
+                    if (scrollDiff > 50) {
+                        audio.play().then(() => {
+                            hasAutoPlayed = true;
+                            // 显示播放提示
+                            showPlayTip();
+                        }).catch(err => {
+                            console.log('自动播放被阻止:', err);
+                        });
+                    }
+                }
+            });
 
-// ════════════════════════════════
-// ⚡ REACTION
-// ════════════════════════════════
-let rx={};
-function startReaction(){
-  hide('rx-ov');
-  ov('rx-results').innerHTML='';
-  rx={round:1,total:5,results:[],phase:'idle',t:null};
-  ov('rx-round').textContent='第 1 / 5 轮';
-  rxNext();
-}
-function rxNext(){
-  const circ=ov('rx-circle');
-  circ.style.cssText='background:rgba(249,202,36,.18);color:#f9ca24;box-shadow:0 0 60px #f9ca24;';
-  circ.querySelector('.icon').textContent='⏳';
-  circ.querySelector('.txt').textContent='准备好了吗…';
-  rx.phase='ready';
-  rx.t=setTimeout(()=>{
-    if(rx.phase!=='ready') return;
-    rx.phase='go'; rx.t0=Date.now();
-    circ.style.cssText='background:rgba(0,210,130,.22);color:#55efc4;box-shadow:0 0 80px #55efc4;';
-    circ.querySelector('.icon').textContent='👆';
-    circ.querySelector('.txt').textContent='点击！';
-  },1500+Math.random()*3000);
-}
-function rxTap(){
-  if(!rx.phase||rx.phase==='idle') return;
-  const circ=ov('rx-circle');
-  if(rx.phase==='ready'){
-    clearTimeout(rx.t);
-    rx.phase='early';
-    circ.style.cssText='background:rgba(235,77,75,.22);color:#eb4d4b;box-shadow:0 0 60px #eb4d4b;';
-    circ.querySelector('.icon').textContent='❌';
-    circ.querySelector('.txt').textContent='太早了！';
-    setTimeout(()=>{ if(rx.round<=rx.total) rxNext(); },1100);
-    return;
-  }
-  if(rx.phase==='go'){
-    const ms=Date.now()-rx.t0;
-    rx.phase='done'; rx.results.push(ms);
-    const [grade,color]=ms<200?['超神！','#f9ca24']:ms<280?['太快了！','#55efc4']:ms<380?['不错哦','#a29bfe']:ms<500?['一般般','#f0932b']:['加油！','#eb4d4b'];
-    circ.style.cssText=`background:${color}22;color:${color};box-shadow:0 0 70px ${color};`;
-    circ.querySelector('.icon').textContent='⚡';
-    circ.querySelector('.txt').textContent=`${ms}ms · ${grade}`;
-    // add bar
-    const w=Math.min(100,(ms/800)*100);
-    const bar=document.createElement('div');
-    bar.className='rbar';
-    bar.innerHTML=`<span style="width:14px;text-align:center">${rx.results.length}</span>
-      <div class="rbar-fill" style="width:${w}%;background:${color}"></div>
-      <span style="color:rgba(255,255,255,.7)">${ms}ms</span>`;
-    ov('rx-results').appendChild(bar);
-    if(rx.round<rx.total){
-      rx.round++; ov('rx-round').textContent=`第 ${rx.round} / ${rx.total} 轮`;
-      setTimeout(rxNext,1400);
-    } else {
-      setTimeout(rxFinal,1400);
-    }
-  }
-}
-function rxFinal(){
-  const avg=Math.round(rx.results.reduce((a,b)=>a+b,0)/rx.results.length);
-  const best=Math.min(...rx.results);
-  const grade=avg<200?'🏆 反应超人！':avg<280?'⚡ 闪电玩家！':avg<380?'👍 反应良好':avg<500?'😅 还需练习':'🐢 继续加油';
-  ov('rx-ov').innerHTML=`
-    <div class="big">🏁</div>
-    <h2>测试完成！</h2>
-    <div style="font-size:26px;margin:4px 0">${grade}</div>
-    <p>平均：<strong style="color:#f9ca24;font-size:20px">${avg}ms</strong><br>最佳：<strong style="color:#55efc4">${best}ms</strong></p>
-    <button class="btn" onclick="startReaction()">再测一次</button>
-    <button class="btn-ghost" onclick="close_('reaction')">返回菜单</button>
-  `;
-  show('rx-ov');
-  rx.phase=null;
-}
+            // 显示播放提示
+            function showPlayTip() {
+                const tip = document.createElement('div');
+                tip.textContent = '🎵 音乐已开始播放';
+                tip.style.position = 'fixed';
+                tip.style.top = '50%';
+                tip.style.left = '50%';
+                tip.style.transform = 'translate(-50%, -50%)';
+                tip.style.background = 'rgba(255, 133, 162, 0.9)';
+                tip.style.color = 'white';
+                tip.style.padding = '15px 30px';
+                tip.style.borderRadius = '30px';
+                tip.style.fontSize = '16px';
+                tip.style.fontWeight = 'bold';
+                tip.style.zIndex = '99999';
+                tip.style.boxShadow = '0 8px 32px rgba(255, 133, 162, 0.5)';
+                tip.style.animation = 'fadeInOut 2s ease';
+                document.body.appendChild(tip);
 
-// ════════════════════════════════
-// 🐹 MOLE
-// ════════════════════════════════
-let mo={};
-function startMole(){
-  hide('mo-ov');
-  const grid=ov('mole-grid');
-  grid.innerHTML='';
-  mo={score:0,timeLeft:30,running:true,holes:[]};
-  ov('mo-score').textContent='0 分';
-  ov('mo-timer').textContent='30s';
+                // 添加淡入淡出动画
+                const tipStyle = document.createElement('style');
+                tipStyle.textContent = `
+                    @keyframes fadeInOut {
+                        0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                        20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                        80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+                        100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+                    }
+                `;
+                document.head.appendChild(tipStyle);
 
-  for(let i=0;i<9;i++){
-    const hole=document.createElement('div');
-    hole.className='hole';
-    const inner=document.createElement('span');
-    hole.appendChild(inner);
-    const tap=()=>hitMole(i);
-    hole.addEventListener('click',tap);
-    hole.addEventListener('touchstart',e=>{e.preventDefault();tap();},{passive:false});
-    grid.appendChild(hole);
-    mo.holes.push({el:hole,inner,active:'empty',t:null});
-  }
+                setTimeout(() => tip.remove(), 2000);
+            }
 
-  loops.moleTimer=setInterval(()=>{
-    if(!mo.running){clearInterval(loops.moleTimer);return;}
-    mo.timeLeft--;
-    ov('mo-timer').textContent=mo.timeLeft+'s';
-    if(mo.timeLeft<=0){
-      mo.running=false;
-      clearInterval(loops.moleTimer);
-      mo.holes.forEach(h=>{if(h.t)clearTimeout(h.t);h.inner.textContent='';});
-      setTimeout(()=>gameOver('mole',mo.score+' 分'),300);
-    }
-  },1000);
+            // 封面图片点击特效
+            coverImage.addEventListener('click', () => {
+                // 创建爱心爆炸效果
+                for (let i = 0; i < 8; i++) {
+                    const heart = document.createElement('div');
+                    heart.textContent = '💖';
+                    heart.style.position = 'fixed';
+                    heart.style.left = coverImage.getBoundingClientRect().left + coverImage.offsetWidth / 2 + 'px';
+                    heart.style.top = coverImage.getBoundingClientRect().top + coverImage.offsetHeight / 2 + 'px';
+                    heart.style.fontSize = '30px';
+                    heart.style.pointerEvents = 'none';
+                    heart.style.zIndex = '9999';
 
-  // Spawn 3 chains
-  for(let i=0;i<3;i++) setTimeout(()=>spawnMole(),i*350);
-}
+                    const angle = (i / 8) * Math.PI * 2;
+                    const distance = 100;
+                    const tx = Math.cos(angle) * distance;
+                    const ty = Math.sin(angle) * distance;
 
-function spawnMole(){
-  if(!mo.running) return;
-  const empty=mo.holes.filter(h=>h.active==='empty');
-  if(!empty.length){setTimeout(spawnMole,300);return;}
-  const hole=empty[Math.floor(Math.random()*empty.length)];
-  const bomb=Math.random()<.16;
-  hole.active=bomb?'bomb':'mole';
-  hole.inner.textContent=bomb?'💣':(Math.random()>.3?'🐹':'🐭');
-  hole.el.style.background=bomb?'rgba(235,77,75,.18)':'rgba(85,239,196,.12)';
-  const dur=Math.max(550,1350-(30-mo.timeLeft)*28);
-  hole.t=setTimeout(()=>{
-    if(hole.active!=='empty'){hole.active='empty';hole.inner.textContent='';hole.el.style.background='';}
-    if(mo.running) spawnMole();
-  },dur);
-}
+                    heart.style.transition = 'all 1s ease-out';
+                    document.body.appendChild(heart);
 
-function hitMole(i){
-  if(!mo.running) return;
-  const hole=mo.holes[i];
-  if(hole.active==='empty') return;
-  clearTimeout(hole.t);
-  const bomb=hole.active==='bomb';
-  hole.active='empty';
-  hole.inner.style.transform='scale(1.4)';
-  setTimeout(()=>{
-    hole.inner.style.transform='';
-    hole.inner.textContent='';
-    hole.el.style.background='';
-    if(mo.running) setTimeout(()=>spawnMole(),150);
-  },120);
-  if(bomb){ mo.score=Math.max(0,mo.score-5); floatPt(hole.el,'-5','#eb4d4b'); }
-  else    { mo.score+=10; floatPt(hole.el,'+10','#55efc4'); }
-  ov('mo-score').textContent=mo.score+' 分';
-}
+                    setTimeout(() => {
+                        heart.style.transform = `translate(${tx}px, ${ty}px)`;
+                        heart.style.opacity = '0';
+                    }, 10);
 
-function floatPt(parent,text,color){
-  const d=document.createElement('div');
-  d.className='floatpt'; d.textContent=text; d.style.color=color;
-  parent.appendChild(d);
-  setTimeout(()=>d.remove(),780);
-}
-
-// Fix close_ overlay logic
-function close_(name) {
-  killLoops();
-  if(name==='mole'&&mo.running){mo.running=false;}
-  document.getElementById('game-'+name).classList.remove('active');
-  document.getElementById('menu').classList.add('active');
-  document.querySelectorAll('#game-'+name+' .ov').forEach(e=>e.classList.remove('gone'));
-  curGame=null;
-}
-</script>
+                    setTimeout(() => heart.remove(), 1000);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
