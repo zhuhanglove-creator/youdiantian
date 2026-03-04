@@ -526,6 +526,8 @@
             // ========== 在这里粘贴你的 LRC 歌词 ==========
             const lrcContent = `[00:00.00]Check check…
 [00:03.67]谁家的小公举迷了路？(hey)
+[00:06.07]蕾丝边，蝴蝶结，别眨眼
+[00:07.97]佳佳驾到，全场尖叫，Yo！
 [00:10.69]她推开大门 像是掉进爱丽丝的洞
 [00:13.56]满屋的蓬蓬裙 简直是她的美梦
 [00:16.36]每一件小裙 都有个诗意的名
@@ -751,9 +753,10 @@
                 }
             });
 
-            // 页面下滑自动播放
+            // 页面下滑自动播放（改进版，兼容 Safari）
             let hasAutoPlayed = false;
             let scrollStartY = 0;
+            let scrollDiff = 0;
 
             window.addEventListener('touchstart', (e) => {
                 scrollStartY = e.touches[0].clientY;
@@ -762,19 +765,23 @@
             window.addEventListener('touchmove', (e) => {
                 if (!hasAutoPlayed && audio.paused) {
                     const scrollCurrentY = e.touches[0].clientY;
-                    const scrollDiff = scrollStartY - scrollCurrentY;
-
-                    // 向下滑动超过 50px 时自动播放
-                    if (scrollDiff > 50) {
-                        audio.play().then(() => {
-                            hasAutoPlayed = true;
-                            // 显示播放提示
-                            showPlayTip();
-                        }).catch(err => {
-                            console.log('自动播放被阻止:', err);
-                        });
-                    }
+                    scrollDiff = scrollStartY - scrollCurrentY;
                 }
+            });
+
+            // 使用 touchend 触发播放，Safari 更容易接受
+            window.addEventListener('touchend', () => {
+                if (!hasAutoPlayed && audio.paused && scrollDiff > 50) {
+                    audio.play().then(() => {
+                        hasAutoPlayed = true;
+                        showPlayTip();
+                    }).catch(err => {
+                        console.log('自动播放被阻止:', err);
+                        // Safari 阻止时显示提示
+                        showClickToPlayTip();
+                    });
+                }
+                scrollDiff = 0;
             });
 
             // 显示播放提示
@@ -811,8 +818,41 @@
                 setTimeout(() => tip.remove(), 2000);
             }
 
-            // 封面图片点击特效
+            // 显示点击播放提示（Safari 阻止时）
+            function showClickToPlayTip() {
+                const tip = document.createElement('div');
+                tip.textContent = '👆 点击封面或播放按钮开始播放';
+                tip.style.position = 'fixed';
+                tip.style.top = '50%';
+                tip.style.left = '50%';
+                tip.style.transform = 'translate(-50%, -50%)';
+                tip.style.background = 'rgba(255, 133, 162, 0.95)';
+                tip.style.color = 'white';
+                tip.style.padding = '15px 30px';
+                tip.style.borderRadius = '30px';
+                tip.style.fontSize = '16px';
+                tip.style.fontWeight = 'bold';
+                tip.style.zIndex = '99999';
+                tip.style.boxShadow = '0 8px 32px rgba(255, 133, 162, 0.5)';
+                tip.style.animation = 'fadeInOut 3s ease';
+                tip.style.textAlign = 'center';
+                tip.style.maxWidth = '80%';
+                document.body.appendChild(tip);
+
+                setTimeout(() => tip.remove(), 3000);
+            }
+
+            // 点击封面播放/暂停 + 爱心特效
             coverImage.addEventListener('click', () => {
+                // 播放/暂停音乐
+                if (audio.paused) {
+                    audio.play().then(() => {
+                        hasAutoPlayed = true;
+                    });
+                } else {
+                    audio.pause();
+                }
+
                 // 创建爱心爆炸效果
                 for (let i = 0; i < 8; i++) {
                     const heart = document.createElement('div');
